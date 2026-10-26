@@ -1,0 +1,12 @@
+{
+  "name": "tienda-fraiche",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node pruebas/pruebas.mjs",
+    "capturas": "node pruebas/pruebas.mjs --capturas"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

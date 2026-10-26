@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Distribuidor Independiente Fraiche</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Perfumes nuevos y rellenos, cremas, bodys, difusores y velas Fraiche. Arma tu pedido y mándalo por WhatsApp.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#faf7f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121014" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#inicio" aria-label="Inicio">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M12 4h8v5h-8zM10 9h12v3H10zM9 12h14a3 3 0 013 3v11a3 3 0 01-3 3H9a3 3 0 01-3-3V15a3 3 0 013-3z"/></svg></span>
+      <span class="brand-txt"><b>Distribuidor Independiente</b><small>Productos Fraiche</small></span>
+    </a>
+    <nav class="top-links" aria-label="Secciones">
+      <a href="#productos" data-cat="nuevo">Perfumes</a>
+      <a href="#productos" data-cat="relleno">Rellenos</a>
+      <a href="#productos" data-cat="ambientales">Casa</a>
+      <a href="#como">Cómo pedir</a>
+    </nav>
+    <button class="icon-btn" id="btnBuscar" aria-label="Buscar" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+    <button class="icon-btn" id="btnCarrito" aria-label="Carrito"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 11.2a2 2 0 002 1.6h7.7a2 2 0 002-1.5L21 8H6.2"/><circle cx="10" cy="20.5" r="1.3"/><circle cx="17" cy="20.5" r="1.3"/></svg><span class="count" id="cuenta" hidden>0</span></button>
+  </div>
+  <div class="wrap search" id="buscador" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+    <input id="q" type="search" placeholder="Busca: 60 ml, crema, vela, relleno…" autocomplete="off" aria-label="Buscar productos">
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="wrap hero" aria-label="Destacados">
+    <div class="slides" id="slides"></div>
+    <div class="dots" id="dots" role="tablist" aria-label="Elegir destacado"></div>
+  </section>
+
+  <section class="wrap" id="categorias" aria-label="Categorías">
+    <div class="cats" id="cats"></div>
+  </section>
+
+  <section class="wrap" id="productos">
+    <div class="pills" id="pills" role="group" aria-label="Filtrar"></div>
+    <div class="list-head">
+      <h1 id="titulo">Todo el catálogo</h1>
+      <span id="conteo"></span>
+    </div>
+    <p class="cat-note" id="nota" hidden></p>
+    <div class="grid" id="grid"></div>
+    <p class="vacio" id="vacio" hidden>No encontramos productos con esa búsqueda. Prueba con otra palabra, por ejemplo “60 ml” o “vela”.</p>
+  </section>
+
+  <section class="wrap info" id="como">
+    <h2>Cómo pedir</h2>
+    <ol class="steps">
+      <li><b>Elige tu producto</b><span>Perfume nuevo, relleno, crema, vela… y el tamaño.</span></li>
+      <li><b>Escoge esencia y aroma</b><span>De línea, neeche o árabe, y el aroma que te gusta.</span></li>
+      <li><b>Manda tu pedido</b><span>Se abre WhatsApp con tu pedido listo. Te confirmo existencias, pago y entrega.</span></li>
+    </ol>
+    <div class="esencias">
+      <div><b>Esencia de línea</b><span>Las fragancias del catálogo Fraiche, a mejor precio.</span></div>
+      <div><b>Esencia neeche</b><span>Fragancias de nicho, más intensas y duraderas.</span></div>
+      <div><b>Esencia árabe</b><span>Aromas de estilo árabe: cálidos, dulces y amaderados.</span></div>
+    </div>
+    <p class="relleno-tip"><b>¿Qué es un relleno?</b> Traes tu frasco y lo llenamos con el aroma que elijas. Cuesta menos que un frasco nuevo.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <b>Distribuidor Independiente Fraiche</b>
+    <p>Vendedor independiente de productos Fraiche. No es la tienda oficial de la marca.</p>
+    <p>Precios en pesos mexicanos, sujetos a cambio sin aviso. Las fotos y dibujos son de referencia.</p>
+  </div>
+</footer>
+
+<nav class="bottom" aria-label="Navegación">
+  <a href="#inicio" class="on" data-go="inicio"><svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20h-5v-6H9v6H4z"/></svg>Inicio</a>
+  <a href="#categorias" data-go="categorias"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>Categorías</a>
+  <button data-go="carrito"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 11.2a2 2 0 002 1.6h7.7a2 2 0 002-1.5L21 8H6.2"/><circle cx="10" cy="20.5" r="1.3"/><circle cx="17" cy="20.5" r="1.3"/></svg>Carrito<span class="count" id="cuenta2" hidden>0</span></button>
+  <button data-go="favoritos"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg>Favoritos</button>
+  <button data-go="contacto"><svg viewBox="0 0 24 24"><path d="M5 19l1.2-3.6A7.5 7.5 0 1112 19.5a7.6 7.6 0 01-3.6-.9z"/></svg>Contacto</button>
+</nav>
+
+<dialog id="dlgProducto" class="sheet" aria-labelledby="pNombre">
+  <form method="dialog" class="sheet-in" id="formProducto">
+    <button class="close" value="cancel" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="p-media" id="pMedia"></div>
+    <div class="p-body">
+      <h2 id="pNombre"></h2>
+      <p class="p-det" id="pDetalle"></p>
+      <fieldset class="opts" id="pOpciones"><legend>Esencia</legend></fieldset>
+      <label class="fld" for="pAroma">Aroma que quieres</label>
+      <input id="pAroma" type="text" placeholder="Nombre o número del aroma (lo puedes dejar para WhatsApp)" autocomplete="off">
+      <div class="p-buy">
+        <div class="step" aria-label="Cantidad">
+          <button type="button" id="pMenos" aria-label="Quitar uno">−</button>
+          <output id="pCant">1</output>
+          <button type="button" id="pMas" aria-label="Agregar uno">+</button>
+        </div>
+        <button type="submit" class="primary" id="pAgregar" value="add">Agregar</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgCarrito" class="sheet" aria-labelledby="cTitulo">
+  <form method="dialog" class="sheet-in cart" id="formCarrito">
+    <button class="close" value="cancel" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h2 id="cTitulo">Tu pedido</h2>
+    <ul class="items" id="items"></ul>
+    <p class="vacio" id="carritoVacio">Tu carrito está vacío. Agrega productos y aquí armas tu pedido.</p>
+    <div id="checkout">
+      <div class="total"><span>Total</span><b id="total"></b></div>
+      <label class="fld" for="cNombre">Tu nombre</label>
+      <input id="cNombre" type="text" autocomplete="name" placeholder="¿A nombre de quién?">
+      <span class="fld">Entrega</span>
+      <div class="seg" role="radiogroup" aria-label="Entrega">
+        <label><input type="radio" name="entrega" value="Recoger" checked><span>Paso a recoger</span></label>
+        <label><input type="radio" name="entrega" value="Envío"><span>Envío a domicilio</span></label>
+      </div>
+      <div id="dirBox" hidden>
+        <label class="fld" for="cDir">Colonia o dirección</label>
+        <input id="cDir" type="text" autocomplete="street-address" placeholder="Para calcular el envío">
+      </div>
+      <label class="fld" for="cNotas">Notas (opcional)</label>
+      <input id="cNotas" type="text" placeholder="Ej. es para regalo">
+      <button type="button" class="primary wa" id="enviar"><svg viewBox="0 0 24 24"><path d="M5 19l1.2-3.6A7.5 7.5 0 1112 19.5a7.6 7.6 0 01-3.6-.9z"/></svg>Enviar pedido por WhatsApp</button>
+      <p class="small" id="waNota">Se abre WhatsApp con tu pedido escrito. Te confirmo existencias, pago y entrega.</p>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="productos.js"></script>
+<script src="tienda.js"></script>
+</body>
+</html>
