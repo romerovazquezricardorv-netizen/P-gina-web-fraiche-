@@ -3,17 +3,18 @@
 //   -$3 desde $100, -$2 de $30 a $99, -$1 abajo de $30, sin centavos.
 //   Fijos: 60 ml nuevo $212 / relleno $144, 30 ml nuevo $127 / relleno $71, 16 ml nuevo $73 / relleno $36 (esencia de línea).
 // precios: linea = esencia de línea, neeche = esencia neeche, arabe = esencia árabe (solo las que existan).
+// img: foto en img/ (las botellas reales están en img/botellas/); var: diseños de frasco con su foto.
 // foto: pon el nombre del archivo que subas a tienda/fotos/ (ej. foto: 'perfume-60.jpg'); sin foto se ve el dibujo.
 // tags: popular (más pedidos), regalo (para regalo), pura (pura esencia).
 window.PRODUCTOS = [
-  {id:'nuevo-120',cat:'nuevo',nombre:'Perfume 120 ml',detalle:'Frasco nuevo',ilus:'frasco-grande',ml:'120',tags:['regalo'],precios:{linea:375,neeche:475,arabe:435}},
+  {id:'nuevo-120',cat:'nuevo',nombre:'Perfume 120 ml',detalle:'Frasco nuevo',ilus:'frasco-grande',ml:'120',tags:['regalo'],precios:{linea:375,neeche:475,arabe:435},img:'img/botellas/120.webp',var:[{n:'Caballero · negro',img:'img/botellas/120-caballero-negro.webp'},{n:'Dama · rojo',img:'img/botellas/120-dama-rojo.webp'}]},
   {id:'nuevo-100',cat:'nuevo',nombre:'Perfume 100 ml',detalle:'Frasco nuevo',ilus:'frasco-grande',ml:'100',tags:['regalo'],precios:{linea:333,neeche:415,arabe:382}},
-  {id:'nuevo-60',cat:'nuevo',nombre:'Perfume 60 ml',detalle:'Frasco nuevo',ilus:'frasco',ml:'60',tags:['popular'],precios:{linea:212,neeche:262,arabe:242}},
+  {id:'nuevo-60',cat:'nuevo',nombre:'Perfume 60 ml',detalle:'Frasco nuevo',ilus:'frasco',ml:'60',tags:['popular'],precios:{linea:212,neeche:262,arabe:242},img:'img/botellas/60.webp',var:[{n:'Caballero · negro',img:'img/botellas/60-caballero-negra.webp'},{n:'Caballero · turquesa',img:'img/botellas/60-caballero-turquesa.webp'},{n:'Dama · nude',img:'img/botellas/60-dama-nude.webp'},{n:'Dama · rosa',img:'img/botellas/60-dama-rosa.webp'},{n:'Dama · morado',img:'img/botellas/60-dama-morada.webp'}]},
   {id:'nuevo-50',cat:'nuevo',nombre:'Perfume 50 ml',detalle:'Frasco nuevo',ilus:'frasco',ml:'50',tags:[],precios:{linea:186,neeche:228,arabe:211}},
   {id:'nuevo-32',cat:'nuevo',nombre:'Perfume 32 ml',detalle:'Frasco nuevo',ilus:'frasco',ml:'32',tags:[],precios:{linea:132,neeche:159,arabe:148}},
-  {id:'nuevo-30',cat:'nuevo',nombre:'Perfume 30 ml',detalle:'Frasco nuevo',ilus:'frasco',ml:'30',tags:['popular'],precios:{linea:127,neeche:152,arabe:142}},
+  {id:'nuevo-30',cat:'nuevo',nombre:'Perfume 30 ml',detalle:'Frasco nuevo',ilus:'frasco',ml:'30',tags:['popular'],precios:{linea:127,neeche:152,arabe:142},img:'img/botellas/30.webp',var:[{n:'Caballero · turquesa',img:'img/botellas/30-caballero-turquesa.webp'},{n:'Caballero · verde',img:'img/botellas/30-caballero-verde.webp'},{n:'Dama · naranja',img:'img/botellas/30-dama-naranja.webp'},{n:'Dama · nude',img:'img/botellas/30-dama-nude.webp'}]},
   {id:'nuevo-20',cat:'nuevo',nombre:'Perfume 20 ml',detalle:'Frasco nuevo',ilus:'frasco-chico',ml:'20',tags:[],precios:{linea:87,neeche:103,arabe:97}},
-  {id:'nuevo-16',cat:'nuevo',nombre:'Perfume 16 ml',detalle:'Frasco nuevo',ilus:'frasco-chico',ml:'16',tags:['popular'],precios:{linea:73,neeche:85,arabe:80}},
+  {id:'nuevo-16',cat:'nuevo',nombre:'Perfume 16 ml',detalle:'Frasco nuevo',ilus:'frasco-chico',ml:'16',tags:['popular'],precios:{linea:73,neeche:85,arabe:80},img:'img/botellas/16-unisex.webp',var:[{n:'Dama y caballero',img:'img/botellas/16-unisex.webp'}]},
   {id:'nuevo-15',cat:'nuevo',nombre:'Perfume 15 ml',detalle:'Frasco nuevo',ilus:'frasco-chico',ml:'15',tags:[],precios:{linea:68,neeche:80,arabe:75}},
   {id:'nuevo-13pe',cat:'nuevo',nombre:'Perfume 13 ml pura esencia',detalle:'Frasco nuevo',ilus:'frasco-chico',ml:'13',tags:['pura'],precios:{linea:114,neeche:146,arabe:133}},
   {id:'nuevo-13',cat:'nuevo',nombre:'Perfume 13 ml',detalle:'Frasco nuevo',ilus:'frasco-chico',ml:'13',tags:[],precios:{linea:60,neeche:70,arabe:66}},
@@ -23,14 +24,14 @@ window.PRODUCTOS = [
   {id:'kit-for-you',cat:'nuevo',nombre:'Kit For You',detalle:'Kit de regalo',ilus:'kit',tags:['regalo'],precios:{linea:402,neeche:512,arabe:468}},
   {id:'set-destilados',cat:'nuevo',nombre:'Set destilados',detalle:'Set de regalo',ilus:'set',tags:['regalo'],precios:{linea:507,neeche:634,arabe:583}},
   {id:'capibara-pulpos',cat:'nuevo',nombre:'Capibara / Pulpos',detalle:'Perfume con figura',ilus:'figura',tags:['regalo'],precios:{linea:177,neeche:219}},
-  {id:'relleno-120',cat:'relleno',nombre:'Relleno 120 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'120',tags:[],precios:{linea:290,neeche:390,arabe:350}},
+  {id:'relleno-120',cat:'relleno',nombre:'Relleno 120 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'120',tags:[],precios:{linea:290,neeche:390,arabe:350},img:'img/botellas/120.webp'},
   {id:'relleno-100',cat:'relleno',nombre:'Relleno 100 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'100',tags:[],precios:{linea:239,neeche:322,arabe:288}},
-  {id:'relleno-60',cat:'relleno',nombre:'Relleno 60 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'60',tags:['popular'],precios:{linea:144,neeche:193,arabe:173}},
+  {id:'relleno-60',cat:'relleno',nombre:'Relleno 60 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'60',tags:['popular'],precios:{linea:144,neeche:193,arabe:173},img:'img/botellas/60.webp'},
   {id:'relleno-50',cat:'relleno',nombre:'Relleno 50 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'50',tags:[],precios:{linea:121,neeche:164,arabe:146}},
   {id:'relleno-32',cat:'relleno',nombre:'Relleno 32 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'32',tags:[],precios:{linea:78,neeche:104,arabe:94}},
-  {id:'relleno-30',cat:'relleno',nombre:'Relleno 30 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'30',tags:['popular'],precios:{linea:71,neeche:96,arabe:86}},
+  {id:'relleno-30',cat:'relleno',nombre:'Relleno 30 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'30',tags:['popular'],precios:{linea:71,neeche:96,arabe:86},img:'img/botellas/30.webp'},
   {id:'relleno-20',cat:'relleno',nombre:'Relleno 20 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'20',tags:[],precios:{linea:49,neeche:66,arabe:59}},
-  {id:'relleno-16',cat:'relleno',nombre:'Relleno 16 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'16',tags:['popular'],precios:{linea:36,neeche:47,arabe:42}},
+  {id:'relleno-16',cat:'relleno',nombre:'Relleno 16 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'16',tags:['popular'],precios:{linea:36,neeche:47,arabe:42},img:'img/botellas/16-unisex.webp'},
   {id:'relleno-15',cat:'relleno',nombre:'Relleno 15 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'15',tags:[],precios:{linea:35,neeche:47,arabe:42}},
   {id:'relleno-13pe',cat:'relleno',nombre:'Relleno 13 ml pura esencia',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'13',tags:['pura'],precios:{linea:82,neeche:114,arabe:101}},
   {id:'relleno-13',cat:'relleno',nombre:'Relleno 13 ml',detalle:'Rellenamos tu frasco',ilus:'relleno',ml:'13',tags:[],precios:{linea:28,neeche:38,arabe:34}},
