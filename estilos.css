@@ -430,3 +430,5 @@ button:active:not(:disabled),label.opt:active,label.var:active{transform:scale(.
 #tColores[hidden]{display:none}
 #tFicha .ficha{margin-top:4px}
 .tsizes.rell .tsize{padding:14px 4px}
+#tColores legend small{font-weight:600;color:var(--muted);margin-left:6px}
+#tColores .vars{max-height:420px;overflow:auto;padding:2px;overscroll-behavior:contain}

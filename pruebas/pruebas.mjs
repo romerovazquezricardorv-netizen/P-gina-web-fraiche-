@@ -182,7 +182,9 @@ await prueba('buscar "212 VIP Black" abre la ventana de tamaños con frascos de 
   await ctx.close();
   assert.ok(nombres.includes('212 VIP Black'), nombres.join(', '));
   assert.deepEqual(tamanos, ['16 ml', '30 ml', '60 ml', '120 ml']);
-  assert.ok(colores.length && colores.every(c => c.startsWith('Caballero')), colores.join(', '));
+  assert.ok(colores.length > 10 && colores[0].startsWith('Caballero'), colores.join(', '));
+  assert.ok(colores.some(c => c.startsWith('Captiver')), 'deben salir envases de caballero del catálogo');
+  assert.ok(!colores.some(c => /^(Dama|Liliana|Línea Miss|Fascinación)/.test(c)), 'no deben salir frascos de dama: ' + colores.join(', '));
   assert.ok(boton.startsWith('Agregar · $'), boton);
   assert.deepEqual([it.id, it.v, it.esencia, it.aroma], ['nuevo-120', 0, 'linea', '212 VIP Black (Caballero)']);
   assert.ok(rellenos > 4, `solo ${rellenos} tamaños de relleno`);

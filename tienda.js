@@ -313,18 +313,41 @@ const pedirAroma = a => a.e === 'ambiental' ? openProduct('difusor-80', { aroma:
 
 /* ---------- ventana de tamaños: el aroma elegido en frasco nuevo (16, 30, 60, 120 ml) o relleno ---------- */
 const TAM = ['16', '30', '60', '120'];
-let tA = null, tModo = 'nuevo', tMl = '60', tColor = 0, tCant = 1;
-// frascos que van con el género del aroma (los de 16 ml son para dama y caballero)
+let tA = null, tModo = 'nuevo', tMl = '60', tSel = '', tCant = 1;
+// género de cada frasco: tus botellas por su nombre; los envases del catálogo por su sección (Dúo = para ambos)
+const CABALLERO = ['torsos-futbol', 'lucha-libre', 'linea-aaa-perfumes', 'polo-king-perfume', 'polo-winner-perfume'];
+function generoFrasco(p, v) {
+  const n = (v && v.n) || '';
+  if (/^Dama/.test(n) || /Woman|Abril|Her Desire|Desire/.test(n)) return 'Dama';
+  if (/^Caballero/.test(n) || /Torso Man|Marine|Legend/.test(n)) return 'Caballero';
+  if (p.genero === 'Dama' || p.genero === 'Caballero') return p.genero;
+  if (p.id === 'nicola-porcella' || CABALLERO.includes(p.id)) return 'Caballero';
+  return 'Ambos';
+}
+// todos los frascos de un tamaño: primero tus botellas y después los envases del catálogo
+function frascosDe(ml) {
+  const out = [];
+  const nuevo = byId['nuevo-' + ml];
+  (nuevo && nuevo.var || []).forEach((v, i) => out.push({ id: nuevo.id, v: i, n: v.n, img: v.img, g: generoFrasco(nuevo, v), propio: true }));
+  for (const p of P) {
+    if (p.cat !== 'envases') continue;
+    if (p.var) p.var.forEach((v, i) => { if (String(v.ml || p.envase) === ml && !p.prox)
+      out.push({ id: p.id, v: i, n: `${p.nombre.replace(/ · .*$/, '')} · ${v.n.replace(/\s*\d+ ml$/, '').replace(/ · .*$/, '')}`, img: v.img || p.img, g: generoFrasco(p, v) }); });
+    else if (String(p.envase) === ml && !p.prox) out.push({ id: p.id, v: -1, n: p.nombre, img: p.img, g: generoFrasco(p) });
+  }
+  return out;
+}
+// los que van con el género del aroma (los "Ambos" siempre aparecen; un aroma unisex ve todos)
 const frascos = (ml, g) => {
-  const p = byId['nuevo-' + ml]; if (!p || !p.var) return [];
-  const todos = p.var.map((v, i) => ({ ...v, i }));
-  const mios = todos.filter(v => g === 'Unisex' || !/^(Dama|Caballero)/.test(v.n) || v.n.startsWith(g));
+  const todos = frascosDe(ml);
+  const mios = todos.filter(f => g === 'Unisex' || f.g === g || f.g === 'Ambos');
   return mios.length ? mios : todos;
 };
+const clave = f => `${f.id}|${f.v}`;
 const prodTam = () => byId[(tModo === 'nuevo' ? 'nuevo-' : 'relleno-') + tMl];
 const precioTam = (modo, ml) => { const p = byId[(modo === 'nuevo' ? 'nuevo-' : 'relleno-') + ml]; return p && p.precios[tA.e]; };
 function abrirTamanos(a) {
-  tA = a; tModo = 'nuevo'; tMl = '60'; tCant = 1; tColor = frascos('60', a.g)[0]?.i ?? -1;
+  tA = a; tModo = 'nuevo'; tMl = '60'; tCant = 1; tSel = '';
   $('#tFicha').innerHTML = fichaAroma(a);
   renderTamanos();
   $('#dlgTam').showModal();
@@ -343,25 +366,27 @@ function renderTamanos() {
       ${foto ? `<span class="timg">${foto}</span>` : ''}<b>${esc(pp.nombre.replace(/^(Perfume|Relleno) /, ''))}</b><small>${pr != null ? money(pr) : '—'}</small></button>`;
   }).join('');
   const fs = tModo === 'nuevo' ? frascos(tMl, a.g) : [];
-  if (!fs.some(f => f.i === tColor)) tColor = fs[0] ? fs[0].i : -1;
+  if (!fs.some(f => clave(f) === tSel)) tSel = fs[0] ? clave(fs[0]) : '';
   $('#tColores').hidden = fs.length < 2;
-  $('#tColores').innerHTML = '<legend>Color del frasco</legend><div class="vars">' + fs.map(f => `
-    <button type="button" class="var con-foto${f.i === tColor ? ' on' : ''}" data-tcolor="${f.i}"><span class="vimg">${imgTag(f.img, f.n)}</span><span class="vn">${esc(f.n)}</span></button>`).join('') + '</div>';
+  $('#tColores').innerHTML = `<legend>Elige tu frasco <small>${fs.length} de ${tMl} ml</small></legend><div class="vars">` + fs.map(f => `
+    <button type="button" class="var con-foto${clave(f) === tSel ? ' on' : ''}" data-tcolor="${clave(f)}"><span class="vimg">${imgTag(f.img, f.n)}</span><span class="vn">${esc(f.n)}</span></button>`).join('') + '</div>';
   $('#tNota').textContent = tModo === 'relleno' ? 'Trae tu frasco: lo rellenamos del tamaño que elijas.'
-    : (a.g === 'Unisex' ? 'Aroma unisex: elige el frasco que más te guste.' : `Frascos para ${a.g.toLowerCase()}, como tu aroma.`);
+    : (a.g === 'Unisex' ? 'Aroma unisex: elige el frasco que más te guste.' : `Frascos para ${a.g.toLowerCase()} y unisex, como tu aroma.`);
   $('#tCant').textContent = tCant;
-  const u = precioTam(tModo, tMl);
+  let u = precioTam(tModo, tMl);
+  if (tModo === 'nuevo' && tSel) { const [id, vi] = tSel.split('|'); const pr = preciosDe(byId[id], +vi); if (pr && pr[a.e] != null) u = pr[a.e]; }
   $('#tAgregar').textContent = `Agregar · ${money(u * tCant)}`;
 }
 $('#tModo').addEventListener('click', e => { const b = e.target.closest('[data-tmodo]'); if (b) { tModo = b.dataset.tmodo; renderTamanos(); } });
 $('#tSizes').addEventListener('click', e => { const b = e.target.closest('[data-tml]'); if (b) { tMl = b.dataset.tml; vibra(8); renderTamanos(); } });
-$('#tColores').addEventListener('click', e => { const b = e.target.closest('[data-tcolor]'); if (b) { tColor = +b.dataset.tcolor; renderTamanos(); } });
+$('#tColores').addEventListener('click', e => { const b = e.target.closest('[data-tcolor]'); if (b) { tSel = b.dataset.tcolor; vibra(8); renderTamanos(); } });
 $('#tMenos').addEventListener('click', () => { tCant = Math.max(1, tCant - 1); renderTamanos(); });
 $('#tMas').addEventListener('click', () => { tCant = Math.min(99, tCant + 1); renderTamanos(); });
 $('#tAgregar').addEventListener('click', () => {
-  const p = prodTam();
-  addToCart(p.id, tModo === 'nuevo' ? tColor : -1, tA.e, `${tA.n} (${tA.g})`, tCant);
-  vuelaAlCarrito(document.querySelector('#tSizes .tsize.on .timg') || $('#tFicha'));
+  let p = prodTam(), v = -1;
+  if (tModo === 'nuevo' && tSel) { const [id, vi] = tSel.split('|'); p = byId[id]; v = +vi; }
+  addToCart(p.id, v, tA.e, `${tA.n} (${tA.g})`, tCant);
+  vuelaAlCarrito(document.querySelector('#tColores .var.on .vimg') || document.querySelector('#tSizes .tsize.on .timg') || $('#tFicha'));
   toast(`${p.nombre} · ${tA.n} agregado al carrito`);
   $('#dlgTam').close();
 });
