@@ -7,8 +7,8 @@
    ========================================================= */
 
 // ---- ajustes de la tienda ----
-// Número de WhatsApp con lada de país y sin espacios, ej. '5215512345678' (52 México + 1 + 10 dígitos).
-const WHATSAPP = '';
+// Número de WhatsApp con lada de país y sin espacios: 52 (México) + los 10 dígitos.
+const WHATSAPP = '525574348740';
 
 const CATS = [
   { id: 'todo', nombre: 'Todo', h: 20, ilus: 'set', titulo: 'Todo el catálogo' },

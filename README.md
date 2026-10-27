@@ -26,7 +26,7 @@ Precios: precio público del catálogo con la misma rebaja (−$3 desde $100, �
 
 ## Cambiar el número de WhatsApp
 
-En `tienda.js`, línea `const WHATSAPP = '';` pon tu número con 52 y el 1 de celular, sin espacios: `const WHATSAPP = '5215512345678';`
+En `tienda.js`, línea `const WHATSAPP = '525574348740';`: 52 (México) seguido de los 10 dígitos, sin espacios.
 
 ## Cambiar precios
 
