@@ -32,7 +32,7 @@
   </div>
   <div class="wrap search" id="buscador" hidden>
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-    <input id="q" type="search" placeholder="Busca: 60 ml, coco, vela, Disney, relleno…" autocomplete="off" aria-label="Buscar productos">
+    <input id="q" type="search" placeholder="Busca un aroma (212 VIP Black), producto o nota…" autocomplete="off" aria-label="Buscar productos">
   </div>
 </header>
 
@@ -48,6 +48,7 @@
 
   <section class="wrap" id="productos">
     <div class="pills" id="pills" role="group" aria-label="Filtrar"></div>
+    <div class="aromas-res" id="aromasRes" hidden></div>
     <div class="list-head">
       <h1 id="titulo">Todo el catálogo</h1>
       <span id="conteo"></span>
@@ -79,6 +80,7 @@
     <b>Distribuidor Independiente Fraiche</b>
     <p>Vendedor independiente de productos Fraiche. No es la tienda oficial de la marca.</p>
     <p>Precios en pesos mexicanos, sujetos a cambio y a disponibilidad. Fotos del Catálogo Fraiche 2026, de referencia.</p>
+    <p>Los nombres de los aromas son una referencia de su familia olfativa (Guía de Tendencias Fraiche 2026); las marcas pertenecen a sus dueños y no son productos originales de esas marcas.</p>
   </div>
 </footer>
 
@@ -102,8 +104,16 @@
       <p class="p-det" id="pVarNotas" hidden></p>
       <fieldset class="opts" id="pOpciones"><legend>Esencia</legend></fieldset>
       <div id="aromaBox">
-        <label class="fld" for="pAroma">Aroma que quieres</label>
-        <input id="pAroma" type="text" placeholder="Nombre o número del aroma (lo puedes dejar para WhatsApp)" autocomplete="off">
+        <div class="aroma-head"><span class="fld">Elige tu aroma</span><small id="pAromaTipo"></small></div>
+        <div id="pBuscaAroma">
+          <input id="pAroma" type="search" placeholder="Busca: 212 VIP Black, vainilla, cítricos…" autocomplete="off" aria-label="Buscar aroma">
+          <div class="gchips" id="pGen" role="group" aria-label="Género">
+            <button type="button" data-gen="todos">Todos</button><button type="button" data-gen="Dama">Dama</button>
+            <button type="button" data-gen="Caballero">Caballero</button><button type="button" data-gen="Unisex">Unisex</button>
+          </div>
+        </div>
+        <div class="alist" id="pAromas"></div>
+        <div class="asel" id="pAromaSel" hidden></div>
       </div>
       <div class="p-buy">
         <div class="step" aria-label="Cantidad">
@@ -133,8 +143,13 @@
         <label><input type="radio" name="entrega" value="Envío"><span>Envío a domicilio</span></label>
       </div>
       <div id="dirBox" hidden>
-        <label class="fld" for="cDir">Colonia o dirección</label>
-        <input id="cDir" type="text" autocomplete="street-address" placeholder="Para calcular el envío">
+        <label class="fld" for="cDir">Lugar de entrega</label>
+        <input id="cDir" type="text" autocomplete="street-address" placeholder="Calle, número y colonia, o punto de encuentro">
+        <div class="grid2">
+          <div><label class="fld" for="cFecha">Fecha</label><input id="cFecha" type="date"></div>
+          <div><label class="fld" for="cHora">Hora</label><input id="cHora" type="time" step="900"></div>
+        </div>
+        <p class="small izq">Por WhatsApp acordamos contigo el lugar, la fecha y la hora exactos.</p>
       </div>
       <label class="fld" for="cNotas">Notas (opcional)</label>
       <input id="cNotas" type="text" placeholder="Ej. es para regalo">
@@ -144,10 +159,25 @@
   </form>
 </dialog>
 
+<dialog id="dlgOk" class="sheet ok" aria-labelledby="okTitulo">
+  <div class="sheet-in ok-in">
+    <div class="confeti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="check" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M15 27l7.5 7.5L38 19"/></svg></div>
+    <h2 id="okTitulo">¡Pedido realizado!</h2>
+    <p class="folio" id="okFolio"></p>
+    <div class="ok-resumen" id="okResumen"></div>
+    <div class="ok-entrega" id="okEntrega"></div>
+    <p class="small">Tu pedido se abrió en WhatsApp. Si no lo enviaste, tócalo de nuevo:</p>
+    <button type="button" class="primary wa" id="okWa"><svg viewBox="0 0 24 24"><path d="M5 19l1.2-3.6A7.5 7.5 0 1112 19.5a7.6 7.6 0 01-3.6-.9z"/></svg>Abrir WhatsApp otra vez</button>
+    <button type="button" class="mas" id="okCerrar">Seguir comprando</button>
+  </div>
+</dialog>
+
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="productos.js"></script>
 <script src="catalogo.js"></script>
+<script src="aromas.js"></script>
 <script src="tienda.js"></script>
 </body>
 </html>

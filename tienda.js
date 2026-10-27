@@ -12,6 +12,7 @@ const WHATSAPP = '525574348740';
 
 const CATS = [
   { id: 'todo', nombre: 'Todo', h: 20, ilus: 'set', titulo: 'Todo el catálogo' },
+  { id: 'aromas', nombre: 'Aromas', h: 330, ilus: 'frasco-chico', titulo: 'Aromas de la genealogía', nota: 'Busca tu perfume favorito por nombre, género o nota y pídelo en el tamaño que quieras.' },
   { id: 'nuevo', nombre: 'Perfumes', h: 345, ilus: 'frasco', titulo: 'Perfumes por tamaño', nota: 'Frasco nuevo con el aroma que elijas, en esencia de línea, neeche o árabe.' },
   { id: 'relleno', nombre: 'Rellenos', h: 150, ilus: 'relleno', titulo: 'Rellenos', nota: 'Traes tu frasco y lo llenamos. Cuesta menos que uno nuevo.' },
   { id: 'envases', nombre: 'Envases', h: 300, ilus: 'frasco-grande', titulo: 'Envases de perfume', nota: 'Elige el diseño y el aroma. El precio depende del tamaño y la esencia.' },
@@ -183,11 +184,11 @@ function badgeOf(p) {
   if (p.tags.includes('regalo')) return '<span class="badge">Para regalo</span>';
   return '';
 }
-function card(p) {
+function card(p, i = 0) {
   const c = catOf(p.cat), m = minPrice(p);
   const desde = (p.precios && Object.keys(p.precios).length > 1) || varias(p);
   const sub = p.var && p.var.length > 1 ? `${p.detalle ? p.detalle + ' · ' : ''}${p.var.length} opciones` : p.detalle;
-  return `<article class="card${p.img || p.foto ? ' con-foto' : ''}" style="--h:${c.h}">
+  return `<article class="card${p.img || p.foto ? ' con-foto' : ''}" style="--h:${c.h};--i:${i % PAGINA}">
     <button class="media" data-open="${p.id}" aria-label="Ver ${esc(p.nombre)}">${art(p, -1)}</button>
     ${badgeOf(p)}
     <button class="fav" data-fav="${p.id}" aria-pressed="${favs.has(p.id)}" aria-label="Guardar ${esc(p.nombre)} en favoritos"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg></button>
@@ -205,15 +206,20 @@ const PAGINA = 48;
 let mostrados = PAGINA;
 function renderGrid(reset = true) {
   if (reset) mostrados = PAGINA;
+  if (cat === 'aromas' && !soloFavs) { renderCats(); return renderAromaGrid(); }
+  renderAromaRes();
   const list = visibles(), c = catOf(cat);
   $('#titulo').textContent = soloFavs ? 'Tus favoritos' : q ? `Resultados para “${q}”` : c.titulo;
   $('#conteo').textContent = `${list.length} ${list.length === 1 ? 'producto' : 'productos'}`;
   const nota = !soloFavs && !q && c.nota;
   $('#nota').hidden = !nota; $('#nota').textContent = nota || '';
-  $('#grid').innerHTML = list.slice(0, mostrados).map(card).join('');
+  $('#grid').innerHTML = list.slice(0, mostrados).map((p, i) => card(p, i)).join('');
   $('#mas').hidden = list.length <= mostrados;
   $('#mas').textContent = `Ver más (${list.length - mostrados})`;
-  $('#vacio').hidden = list.length > 0;
+  // si la búsqueda solo encontró aromas, no se muestra el aviso de "sin productos"
+  const soloAromas = !list.length && !$('#aromasRes').hidden;
+  document.querySelector('#productos > .list-head').hidden = soloAromas;
+  $('#vacio').hidden = list.length > 0 || soloAromas;
   $('#vacio').textContent = soloFavs ? 'Aún no guardas favoritos. Toca el corazón de un producto para guardarlo aquí.'
     : 'No encontramos productos con esa búsqueda. Prueba con otra palabra, por ejemplo “60 ml”, “vela” o “coco”.';
 }
@@ -224,8 +230,9 @@ function setCat(id, scroll) {
 
 /* ---------- producto ---------- */
 let actual = null, cant = 1, vSel = -1;
-function openProduct(id) {
+function openProduct(id, op = {}) {
   const p = byId[id], c = catOf(p.cat); actual = p; cant = 1; vSel = p.var ? 0 : -1;
+  aromaSel = null; if (op.aroma) aromaGen = 'todos';
   const dlg = $('#dlgProducto');
   dlg.style.setProperty('--h', c.h);
   $('#pNombre').textContent = p.nombre;
@@ -241,6 +248,8 @@ function openProduct(id) {
   $('#aromaBox').hidden = !pideAroma(p);
   $('#pOpciones').innerHTML = '';
   renderVariante();
+  if (op.esencia) { const r = $(`#pOpciones input[value="${op.esencia}"]`); if (r) { r.checked = true; updateBuy(); } }
+  if (op.aroma) { aromaSel = op.aroma; renderAromas(); }
   dlg.showModal();
   $('#formProducto').scrollTop = 0;
 }
@@ -263,6 +272,73 @@ function updateBuy() {
   $('#pCant').textContent = cant;
   const pr = preciosDe(actual, vSel), u = pr ? pr[esencia()] : null;
   $('#pAgregar').textContent = u == null ? 'Agregar · precio por confirmar' : `Agregar · ${money(u * cant)}`;
+  renderAromas();
+}
+
+/* ---------- aromas (Guía de Tendencias / Genealogía 2026) ---------- */
+const AROMAS = (window.AROMAS || []).map((a, i) => ({ ...a, i }));
+const TIPO_AROMA = { linea: 'Esencia de línea', neeche: 'Esencia neeche', arabe: 'Esencia árabe', ambiental: 'Esencia ambiental' };
+const slug = s => norm(s).replace(/[^a-z]+/g, '-');
+AROMAS.forEach(a => { a.t = norm(`${a.n} ${a.g} ${a.nota} ${a.fam} ${TIPO_AROMA[a.e]}`); });
+let aromaSel = null, aromaGen = 'todos', aGen = 'todos', aTipo = 'todos';
+// difusores y productos de casa usan esencias ambientales; lo demás, la esencia elegida
+const tipoAroma = () => actual.cat === 'casa' ? 'ambiental' : (TIPO_AROMA[esencia()] && esencia() !== 'ambiental' ? esencia() : 'linea');
+function buscaAromas(txt, tipo, gen) {
+  const w = norm(txt).split(/\s+/).filter(Boolean);
+  return AROMAS.filter(a => (tipo === 'todos' || a.e === tipo) && (gen === 'todos' || a.g === gen)
+    && w.every(x => a.t.includes(x) || a.t.replace(/\s/g, '').includes(x)));
+}
+const fichaAroma = a => `<div class="ficha"><span class="fam f-${slug(a.fam)}">${esc(a.fam)}</span><small class="insp">Inspirado olfativamente en</small>
+  <b>${esc(a.n)}</b><small>${esc(a.g)} · ${TIPO_AROMA[a.e]}</small>
+  <p>Nota principal: <b>${esc(a.nota)}</b>. Huele ${esc(a.desc)}.</p></div>`;
+function renderAromas() {
+  if (!actual || !pideAroma(actual)) return;
+  const tipo = tipoAroma(), txt = $('#pAroma').value.trim();
+  if (aromaSel && aromaSel.e !== tipo) aromaSel = null;   // cambió la esencia: el aroma ya no aplica
+  const list = buscaAromas(txt, tipo, aromaGen);
+  $('#pAromaTipo').textContent = `${AROMAS.filter(a => a.e === tipo).length} aromas en ${TIPO_AROMA[tipo].toLowerCase()}`;
+  $('#pAromas').innerHTML = list.slice(0, 40).map(a => `<button type="button" class="aroma" data-aroma="${a.i}"><span class="dot f-${slug(a.fam)}"></span>
+    <span><b>${esc(a.n)}</b><small>${esc(a.g)} · ${esc(a.nota)}</small></span></button>`).join('')
+    + (list.length > 40 ? `<p class="small">y ${list.length - 40} más: escribe para afinar la búsqueda.</p>` : '')
+    + (!list.length && txt ? `<p class="small">No está en la lista: se enviará “${esc(txt)}” como aroma.</p>` : '');
+  $('#pBuscaAroma').hidden = $('#pAromas').hidden = !!aromaSel;
+  $('#pAromaSel').hidden = !aromaSel;
+  $('#pAromaSel').innerHTML = aromaSel ? fichaAroma(aromaSel) + '<button type="button" class="link" id="cambiarAroma">Cambiar aroma</button>' : '';
+  document.querySelectorAll('#pGen button').forEach(b => b.setAttribute('aria-pressed', b.dataset.gen === aromaGen));
+}
+const aromaTexto = () => aromaSel ? `${aromaSel.n} (${aromaSel.g})` : $('#pAroma').value.trim();
+const pedirAroma = a => a.e === 'ambiental' ? openProduct('difusor-80', { aroma: a }) : openProduct('nuevo-60', { esencia: a.e, aroma: a });
+const aromaCard = (a, i) => `<article class="acard" style="--i:${i % PAGINA}">
+  <span class="fam f-${slug(a.fam)}">${esc(a.fam)}</span><small class="insp">Inspirado olfativamente en</small>
+  <h3>${esc(a.n)}</h3><span class="det">${esc(a.g)} · ${TIPO_AROMA[a.e]}</span>
+  <p>Nota principal: <b>${esc(a.nota)}</b>. Huele ${esc(a.desc)}.</p>
+  <button class="pedir" data-pedir="${a.i}">Pedir este aroma</button></article>`;
+const GENEROS = ['todos', 'Dama', 'Caballero', 'Unisex'];
+function renderAromaGrid() {
+  const list = buscaAromas(q, aTipo, aGen);
+  $('#aromasRes').hidden = true;
+  document.querySelector('#productos > .list-head').hidden = false;
+  $('#titulo').textContent = q ? `Aromas para “${q}”` : 'Aromas de la genealogía';
+  $('#conteo').textContent = `${list.length} ${list.length === 1 ? 'aroma' : 'aromas'}`;
+  $('#nota').hidden = false; $('#nota').textContent = catOf('aromas').nota;
+  $('#pills').innerHTML = GENEROS.map(g => `<button class="pill" data-agen="${g}" aria-pressed="${g === aGen}">${g === 'todos' ? 'Todos' : g}</button>`).join('')
+    + '<span class="pill-sep" aria-hidden="true"></span>'
+    + ['todos', 'linea', 'neeche', 'arabe', 'ambiental'].map(t => `<button class="pill" data-atipo="${t}" aria-pressed="${t === aTipo}">${t === 'todos' ? 'Todas las esencias' : TIPO_AROMA[t].replace('Esencia ', '')}</button>`).join('');
+  $('#grid').innerHTML = list.slice(0, mostrados).map(aromaCard).join('');
+  $('#mas').hidden = list.length <= mostrados;
+  $('#mas').textContent = `Ver más (${list.length - mostrados})`;
+  $('#vacio').hidden = list.length > 0;
+  $('#vacio').textContent = 'No encontramos ese aroma. Prueba con otra palabra, por ejemplo “vainilla” o “212”.';
+}
+// en la búsqueda general, los aromas que coinciden salen arriba de los productos
+function renderAromaRes() {
+  const box = $('#aromasRes');
+  const list = q && !soloFavs ? buscaAromas(q, 'todos', 'todos') : [];
+  box.hidden = !list.length;
+  if (!list.length) return;
+  box.innerHTML = `<div class="list-head"><h2>Aromas</h2><span>${list.length} ${list.length === 1 ? 'aroma' : 'aromas'}</span></div>
+    <div class="arow">${list.slice(0, 8).map(aromaCard).join('')}</div>
+    ${list.length > 8 ? `<button class="mas" data-cat="aromas">Ver los ${list.length} aromas</button>` : ''}`;
 }
 
 /* ---------- carrito ---------- */
@@ -300,16 +376,27 @@ function renderCart() {
   $('#waNota').textContent = WHATSAPP ? 'Se abre WhatsApp con tu pedido escrito. Te confirmo existencias, pago y entrega.'
     : 'Pronto podrás mandar tu pedido por WhatsApp desde aquí.';
 }
+const fechaBonita = f => f ? new Date(f + 'T12:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }) : '';
+function entregaDatos() {
+  const envio = document.querySelector('input[name=entrega]:checked').value === 'Envío';
+  return { envio, lugar: $('#cDir').value.trim(), fecha: $('#cFecha').value, hora: $('#cHora').value };
+}
+let folio = '';
+const nuevoFolio = () => { const d = new Date(), z = n => String(n).padStart(2, '0');
+  return `F-${z(d.getDate())}${z(d.getMonth() + 1)}${String(d.getFullYear()).slice(2)}-${z(d.getHours())}${z(d.getMinutes())}`; };
 function mensaje() {
-  const entrega = document.querySelector('input[name=entrega]:checked').value;
-  const nombre = $('#cNombre').value.trim(), dir = $('#cDir').value.trim(), notas = $('#cNotas').value.trim();
+  const ent = entregaDatos();
+  const nombre = $('#cNombre').value.trim(), notas = $('#cNotas').value.trim();
   const lineas = cart.map((it, i) => {
     const p = byId[it.id], u = unitario(it);
     const det = [varName(it), muchasEsencias(it) ? esName(it.esencia) : '', it.aroma ? 'Aroma: ' + it.aroma : ''].filter(Boolean).join(' · ');
     return `${i + 1}. ${p.nombre}${det ? ' · ' + det : ''}\n   ${it.cant} × ${u == null ? 'precio por confirmar' : `${money(u)} = ${money(u * it.cant)}`}`;
   });
-  return ['¡Hola! Quiero hacer este pedido:', '', ...lineas, '', `*Total: ${money(total())}${porConfirmar() ? ' + productos por confirmar' : ''}*`, '',
-    nombre ? `Nombre: ${nombre}` : null, `Entrega: ${entrega === 'Envío' ? 'Envío a domicilio' + (dir ? ' (' + dir + ')' : '') : 'Paso a recoger'}`,
+  const cuando = [fechaBonita(ent.fecha), ent.hora ? ent.hora + ' h' : ''].filter(Boolean).join(', ');
+  return [`¡Hola! Quiero hacer este pedido${folio ? ' (' + folio + ')' : ''}:`, '', ...lineas, '', `*Total: ${money(total())}${porConfirmar() ? ' + productos por confirmar' : ''}*`, '',
+    nombre ? `Nombre: ${nombre}` : null, `Entrega: ${ent.envio ? 'Envío a domicilio' : 'Paso a recoger'}`,
+    ent.envio && ent.lugar ? `Lugar de entrega: ${ent.lugar}` : null,
+    ent.envio && cuando ? `Fecha y hora que prefiero: ${cuando}` : null,
     notas ? `Notas: ${notas}` : null].filter(x => x !== null).join('\n');
 }
 
@@ -320,6 +407,12 @@ function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add
 /* ---------- eventos ---------- */
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return;
+  if (t.dataset.aroma) { aromaSel = AROMAS[+t.dataset.aroma]; renderAromas(); vibra(8); return; }
+  if (t.id === 'cambiarAroma') { aromaSel = null; $('#pAroma').value = ''; renderAromas(); $('#pAroma').focus(); return; }
+  if (t.dataset.gen) { aromaGen = t.dataset.gen; renderAromas(); return; }
+  if (t.dataset.pedir) { pedirAroma(AROMAS[+t.dataset.pedir]); return; }
+  if (t.dataset.agen) { aGen = t.dataset.agen; renderGrid(); return; }
+  if (t.dataset.atipo) { aTipo = t.dataset.atipo; renderGrid(); return; }
   if (t.dataset.cat) { e.preventDefault(); setCat(t.dataset.cat, !t.classList.contains('cat')); return; }
   if (t.dataset.tag) { tag = t.dataset.tag; renderCats(); renderGrid(); return; }
   if (t.dataset.open) { openProduct(t.dataset.open); return; }
@@ -356,25 +449,88 @@ $('#q').addEventListener('input', e => {
 $('#q').addEventListener('keydown', e => { if (e.key === 'Enter') $('#productos').scrollIntoView({ behavior: 'smooth' }); });
 $('#pVar').addEventListener('change', e => { if (e.target.name === 'variante') { vSel = +e.target.value; renderVariante(); } });
 $('#pOpciones').addEventListener('change', updateBuy);
+$('#pAroma').addEventListener('input', renderAromas);
 $('#pMenos').addEventListener('click', () => { cant = Math.max(1, cant - 1); updateBuy(); });
 $('#pMas').addEventListener('click', () => { cant = Math.min(99, cant + 1); updateBuy(); });
 $('#formProducto').addEventListener('submit', e => {
   if (e.submitter && e.submitter.value === 'add') {
-    addToCart(actual.id, vSel, esencia(), pideAroma(actual) ? $('#pAroma').value.trim() : '', cant);
+    addToCart(actual.id, vSel, esencia(), pideAroma(actual) ? aromaTexto() : '', cant);
+    vuelaAlCarrito($('#pMedia'));
     toast(`${actual.nombre} agregado al carrito`);
   }
 });
 document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));   // tocar fuera cierra
 document.querySelectorAll('input[name=entrega]').forEach(r => r.addEventListener('change', () => { $('#dirBox').hidden = r.value !== 'Envío' || !r.checked; }));
+let ultimoMensaje = '';
+const abrirWhats = m => window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(m)}`, '_blank', 'noopener');
 $('#enviar').addEventListener('click', () => {
   if (!WHATSAPP || !cart.length) return;
-  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(mensaje())}`, '_blank', 'noopener');
+  const ent = entregaDatos();
+  if (ent.envio && !ent.lugar) { toast('Escribe el lugar de entrega'); $('#cDir').focus(); return; }
+  folio = nuevoFolio();
+  ultimoMensaje = mensaje();
+  abrirWhats(ultimoMensaje);
+  pedidoRealizado(ent);
 });
+// ventana de confirmación: folio, resumen y cómo se acuerda la entrega
+function pedidoRealizado(ent) {
+  const n = cart.reduce((a, it) => a + it.cant, 0);
+  $('#okFolio').textContent = `Folio ${folio}`;
+  $('#okResumen').innerHTML = `<span>${n} ${n === 1 ? 'producto' : 'productos'}</span><b>${money(total())}${porConfirmar() ? ' + por confirmar' : ''}</b>`;
+  const cuando = [fechaBonita(ent.fecha), ent.hora ? ent.hora + ' h' : ''].filter(Boolean).join(' a las ');
+  $('#okEntrega').innerHTML = ent.envio
+    ? `<b>Envío a domicilio</b><p>${esc(ent.lugar)}${cuando ? `<br>${esc(cuando)}` : ''}</p><p class="small">Por WhatsApp acordamos contigo el lugar, la fecha y la hora exactos de la entrega.</p>`
+    : `<b>Pasas a recoger</b><p class="small">Por WhatsApp te avisamos cuándo está listo tu pedido y dónde recogerlo.</p>`;
+  $('#dlgCarrito').close();
+  cart = []; saveCart();
+  $('#dlgOk').showModal();
+  vibra([12, 40, 18]);
+}
+$('#okWa').addEventListener('click', () => { if (ultimoMensaje) abrirWhats(ultimoMensaje); });
+$('#okCerrar').addEventListener('click', () => $('#dlgOk').close());
+const hoyISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+$('#cFecha').min = hoyISO();
 $('#slides').addEventListener('scroll', () => {
   const i = slideIndex(); document.querySelectorAll('#dots button').forEach((b, j) => b.setAttribute('aria-selected', i === j));
 }, { passive: true });
 $('#slides').addEventListener('pointerdown', startAutoplay);
 
+/* ---------- interacciones táctiles ---------- */
+const calma = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const vibra = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+// onda de luz desde el punto donde se toca
+document.addEventListener('pointerdown', e => {
+  const t = e.target.closest('button, .cta, .top-links a, .bottom a, label.opt, label.var, .seg span');
+  if (!t || calma()) return;
+  const r = t.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2;
+  if (getComputedStyle(t).position === 'static') t.style.position = 'relative';
+  t.classList.add('rip-host');
+  const w = document.createElement('span');
+  w.className = 'rip';
+  w.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+  t.append(w);
+  w.addEventListener('animationend', () => w.remove());
+}, { passive: true });
+// la foto del producto vuela hasta el carrito y el contador rebota
+function vuelaAlCarrito(desde) {
+  vibra(14);
+  const metas = [$('#btnCarrito'), document.querySelector('.bottom [data-go="carrito"]')].filter(el => el && el.offsetParent);
+  const meta = metas.find(el => el.getBoundingClientRect().top > 0 && getComputedStyle(el).display !== 'none') || metas[0];
+  const bump = () => document.querySelectorAll('.count').forEach(c => { c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); });
+  if (!desde || !meta || calma()) return bump();
+  const a = desde.getBoundingClientRect(), b = meta.getBoundingClientRect();
+  const f = desde.cloneNode(true);
+  f.className = 'vuela'; f.removeAttribute('id');
+  const s = Math.min(a.width, a.height, 160);
+  f.style.cssText = `left:${a.left + a.width / 2 - s / 2}px;top:${a.top + a.height / 2 - s / 2}px;width:${s}px;height:${s}px`;
+  document.body.append(f);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  f.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 },
+             { transform: `translate(${dx * .55}px,${dy * .35 - 80}px) scale(.55)`, opacity: .95, offset: .55 },
+             { transform: `translate(${dx}px,${dy}px) scale(.12)`, opacity: .4 }],
+    { duration: 720, easing: 'cubic-bezier(.5,0,.25,1)' }).onfinish = () => { f.remove(); bump(); };
+}
+
 /* ---------- arranque ---------- */
 renderHero(); renderCats(); renderGrid(); renderCount(); startAutoplay();
-window.tienda = { mensaje, P, get cart() { return cart; } };   // usado por las pruebas
+window.tienda = { mensaje, P, AROMAS, get cart() { return cart; } };   // usado por las pruebas

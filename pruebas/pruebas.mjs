@@ -164,6 +164,82 @@ await prueba('favoritos se guardan y se ven en su sección', async () => {
   assert.deepEqual(nombres, ['Perfume 60 ml']);
 });
 
+await prueba('buscar "212 VIP Black" muestra el aroma y lo pide en perfume de 60 ml', async () => {
+  const { ctx, page, errors } = await abrir();
+  await page.click('#btnBuscar'); await page.fill('#q', '212 VIP Black');
+  const nombres = await page.locator('#aromasRes .acard h3').allTextContents();
+  await page.click('#aromasRes .acard:has(h3:text-is("212 VIP Black")) .pedir');
+  const titulo = await page.textContent('#pNombre');
+  const ficha = await page.textContent('#pAromaSel');
+  await page.click('#pAgregar');
+  const it = await page.evaluate(() => window.tienda.cart[0]);
+  await ctx.close();
+  assert.ok(nombres.includes('212 VIP Black'), nombres.join(', '));
+  assert.equal(titulo, 'Perfume 60 ml');
+  assert.ok(ficha.includes('Caballero') && ficha.includes('Lavanda'), ficha);
+  assert.deepEqual([it.id, it.esencia, it.aroma], ['nuevo-60', 'linea', '212 VIP Black (Caballero)']);
+  assert.deepEqual(errors, []);
+});
+
+await prueba('al elegir esencia neeche, el buscador de aromas muestra solo aromas neeche', async () => {
+  const { ctx, page } = await abrir();
+  await page.click('.cat[data-cat="nuevo"]');
+  await page.click('.card .add[data-open="nuevo-30"]');
+  await page.check('#pOpciones input[value="neeche"]');
+  const tipo = await page.textContent('#pAromaTipo');
+  await page.click('#pGen button[data-gen="Dama"]');
+  await page.fill('#pAroma', 'vainilla');
+  const n = await page.locator('#pAromas .aroma').count();
+  await page.click('#pAromas .aroma >> nth=0');
+  const elegido = await page.isVisible('#pAromaSel .ficha');
+  const todos = await page.evaluate(() => [...document.querySelectorAll('#pAromas .aroma')].map(b => window.tienda.AROMAS[+b.dataset.aroma]));
+  await ctx.close();
+  assert.ok(/aromas en esencia neeche/.test(tipo), tipo);
+  assert.ok(n > 0, 'sin resultados');
+  assert.ok(elegido, 'tocar un aroma de la lista debe elegirlo');
+  assert.ok(todos.every(a => a.e === 'neeche' && a.g === 'Dama' && /vainilla/i.test(a.n + a.nota)), JSON.stringify(todos.slice(0, 3)));
+});
+
+await prueba('sección Aromas: filtra por género (Caballero) y esencia (árabe)', async () => {
+  const { ctx, page } = await abrir();
+  await page.click('.cat[data-cat="aromas"]');
+  const total = await page.textContent('#conteo');
+  await page.click('.pill[data-agen="Caballero"]');
+  await page.click('.pill[data-atipo="arabe"]');
+  const det = await page.locator('.acard .det').allTextContents();
+  await ctx.close();
+  assert.ok(parseInt(total) > 900, total);
+  assert.ok(det.length > 10 && det.every(d => d === 'Caballero · Esencia árabe'), det.slice(0, 3).join(' | '));
+});
+
+await prueba('pedido con envío: pide lugar, manda fecha y hora, y muestra "Pedido realizado"', async () => {
+  const { ctx, page, errors } = await abrir();
+  await page.evaluate(() => { window.__abiertos = []; window.open = (u) => { window.__abiertos.push(u); return null; }; });
+  await page.click('.cat[data-cat="nuevo"]');
+  await page.click('.card .add[data-open="nuevo-16"]');
+  await page.click('#pAgregar');
+  await page.click('#btnCarrito');
+  await page.check('input[name=entrega][value="Envío"]', { force: true });
+  await page.click('#enviar');
+  const sinLugar = await page.evaluate(() => window.__abiertos.length);
+  await page.fill('#cDir', 'Av. Juárez 10, Centro');
+  await page.fill('#cFecha', '2030-05-17');
+  await page.fill('#cHora', '17:30');
+  await page.click('#enviar');
+  await page.waitForSelector('#dlgOk[open]');
+  const url = await page.evaluate(() => window.__abiertos[0]);
+  const ok = await page.textContent('#dlgOk');
+  const carrito = await page.evaluate(() => window.tienda.cart.length);
+  await ctx.close();
+  const msg = decodeURIComponent(url.split('text=')[1]);
+  assert.equal(sinLugar, 0, 'no debe enviar sin lugar de entrega');
+  assert.ok(url.startsWith('https://wa.me/525574348740?text='), url);
+  assert.ok(msg.includes('Lugar de entrega: Av. Juárez 10, Centro') && /viernes, 17 de mayo, 17:30 h/.test(msg) && /\(F-\d{6}-\d{4}\)/.test(msg), msg);
+  assert.ok(ok.includes('¡Pedido realizado!') && ok.includes('Av. Juárez 10') && ok.includes('acordamos contigo el lugar, la fecha y la hora'), ok);
+  assert.equal(carrito, 0);
+  assert.deepEqual(errors, []);
+});
+
 await browser.close(); server.close();
 console.log(fails ? `\n${fails} prueba(s) fallaron` : '\nTodo en orden ✔');
 process.exit(fails ? 1 : 0);

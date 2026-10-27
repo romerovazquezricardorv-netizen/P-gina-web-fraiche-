@@ -12,6 +12,18 @@ Precios: precio público del catálogo con la misma rebaja (−$3 desde $100, �
 
 `herramientas/` guarda cómo se generó: `datos/*.py` (productos de cada sección y qué foto lleva cada uno) y `genera.py` (crea `catalogo.js` e `img/`). Para el catálogo siguiente se repite el proceso con el PDF nuevo.
 
+## Aromas (Genealogía 2026)
+
+`aromas.js` tiene los 934 aromas de la Guía de Tendencias Fraiche 2026: nombre de referencia, género (Dama, Caballero, Unisex), tipo de esencia (línea = tradicional, neeche = nicho, árabe, ambiental) y nota principal. La familia (cítrica, floral, gourmand…) y la frase de a qué huele se deducen de la nota principal.
+
+- Al pedir un perfume, relleno o envase, el cliente busca y elige su aroma; la lista se ajusta a la esencia elegida y se filtra por género.
+- La sección **Aromas** y el buscador encuentran aromas por nombre, nota o género (por ejemplo “212 VIP Black”).
+- `herramientas/genealogia/` guarda cómo se sacaron del PDF (`parse.py` y `aromas.py`).
+
+## Pedido
+
+El cliente arma su carrito y toca *Enviar pedido por WhatsApp*: se abre WhatsApp con el pedido y un folio, y en la página aparece la ventana de **Pedido realizado**. Con envío a domicilio se pide el lugar de entrega y, si quiere, fecha y hora; se le avisa que por WhatsApp se acuerdan lugar, fecha y hora exactos.
+
 ## Archivos
 
 | Archivo | Qué es |
@@ -22,6 +34,7 @@ Precios: precio público del catálogo con la misma rebaja (−$3 desde $100, �
 | `productos.js` | Perfumes y rellenos por tamaño. **Aquí cambias esos precios.** |
 | `catalogo.js` | Productos del Catálogo 2026 con variantes y fotos (precios ya rebajados; se pueden editar aquí) |
 | `img/` | Fotos del catálogo |
+| `aromas.js` | Aromas de la genealogía con género y nota principal |
 | `fotos/` | Aquí van las fotos de los productos |
 
 ## Cambiar el número de WhatsApp
