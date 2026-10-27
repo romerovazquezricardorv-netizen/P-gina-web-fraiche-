@@ -35,9 +35,16 @@ console.log('Tienda · pruebas');
 
 await prueba('carga sin errores y muestra todo el catálogo', async () => {
   const { ctx, page, errors } = await abrir();
-  const n = await page.locator('.card').count(), total = await page.evaluate(() => window.PRODUCTOS.length);
+  const total = await page.evaluate(() => window.tienda.P.length);
+  const n = await page.locator('.card').count();
+  const conteo = await page.textContent('#conteo');
+  await page.click('#mas');
+  const n2 = await page.locator('.card').count();
   await ctx.close();
-  assert.equal(n, total); assert.deepEqual(errors, []);
+  assert.ok(total >= 230, `solo ${total} productos`);
+  assert.equal(n, 48); assert.equal(n2, 96);
+  assert.equal(conteo, `${total} productos`);
+  assert.deepEqual(errors, []);
 });
 
 await prueba('sin scroll horizontal en 360, 390, 768 y 1280 px, claro y oscuro', async () => {
@@ -63,18 +70,69 @@ await prueba('categoría Rellenos filtra y el título cambia', async () => {
   const titulo = await page.textContent('#titulo'), n = await page.locator('.card').count();
   await ctx.close();
   assert.equal(titulo, 'Rellenos'); assert.equal(n, 14);
+  for (const c of ['envases', 'velas', 'maquillaje', 'ninos', 'casa']) {
+    const { ctx: x, page: pg } = await abrir();
+    await pg.click(`.cat[data-cat="${c}"]`);
+    const k = await pg.locator('.card').count();
+    await x.close();
+    assert.ok(k > 0, `la categoría ${c} está vacía`);
+  }
 });
 
-await prueba('buscar "vela" encuentra las 3 velas', async () => {
+await prueba('buscar "Mermaid" encuentra la línea Fantasy (busca también en variantes)', async () => {
   const { ctx, page } = await abrir();
-  await page.click('#btnBuscar'); await page.fill('#q', 'vela');
-  const n = await page.locator('.card').count();
+  await page.click('#btnBuscar'); await page.fill('#q', 'mermaid');
+  const nombres = await page.locator('.card h3').allTextContents();
   await ctx.close();
-  assert.equal(n, 3);
+  assert.ok(nombres.length >= 5, nombres.join(', '));
+  assert.ok(nombres.includes('Shampoo 2 en 1 Fantasy'), nombres.join(', '));
+});
+
+await prueba('todas las fotos del catálogo existen', async () => {
+  const { ctx, page } = await abrir();
+  const rutas = await page.evaluate(() => [...new Set(window.CATALOGO.flatMap(p => [p.img, ...(p.var || []).map(v => v.img)]).filter(Boolean))]);
+  await ctx.close();
+  const faltan = rutas.filter(r => !fs.existsSync(path.join(ROOT, r)));
+  assert.ok(rutas.length > 300, `solo ${rutas.length} fotos`);
+  assert.deepEqual(faltan, []);
+});
+
+await prueba('envase con variantes: cambia la foto y el precio por tamaño (Liliana 60 → 30 ml)', async () => {
+  const { ctx, page, errors } = await abrir();
+  await page.click('#btnBuscar'); await page.fill('#q', 'liliana');
+  await page.click('.card .add[data-open="liliana"]');
+  const foto1 = await page.getAttribute('#pMedia img', 'src');
+  const b1 = await page.textContent('#pAgregar');
+  await page.click('#pVar .var:has-text("Melón 30 ml")');
+  const foto2 = await page.getAttribute('#pMedia img', 'src');
+  const b2 = await page.textContent('#pAgregar');
+  await page.check('#pOpciones input[value="neeche"]');
+  await page.fill('#pAroma', 'Aroma de prueba');
+  await page.click('#pAgregar');
+  const msg = await page.evaluate(() => window.tienda.mensaje());
+  await ctx.close();
+  assert.notEqual(foto1, foto2);
+  assert.equal(b1, 'Agregar · $212'); assert.equal(b2, 'Agregar · $127');
+  assert.ok(msg.includes('Liliana · Melón 30 ml · Esencia neeche · Aroma: Aroma de prueba'), msg);
+  assert.deepEqual(errors, []);
+});
+
+await prueba('producto con aroma fijo: no pide aroma y respeta el precio especial', async () => {
+  const { ctx, page } = await abrir();
+  await page.click('.pill[data-tag="oferta"]');
+  const n = await page.locator('.card').count();
+  await page.click('#btnBuscar'); await page.fill('#q', 'nuestra cancion');
+  await page.click('.card .add[data-open="vela-nuestra-cancion"]');
+  const aroma = await page.isVisible('#pAroma');
+  const boton = await page.textContent('#pAgregar');
+  await ctx.close();
+  assert.ok(n >= 20, `solo ${n} con precio especial`);
+  assert.equal(aroma, false); assert.equal(boton, 'Agregar · $77');
 });
 
 await prueba('agregar 2 perfumes de 60 ml en esencia árabe y armar el mensaje de WhatsApp', async () => {
   const { ctx, page, errors } = await abrir();
+  await page.click('.cat[data-cat="nuevo"]');
   await page.click('.card .add[data-open="nuevo-60"]');
   await page.check('#pOpciones input[value="arabe"]');
   await page.fill('#pAroma', 'Aroma de prueba');
@@ -97,12 +155,13 @@ await prueba('agregar 2 perfumes de 60 ml en esencia árabe y armar el mensaje d
 
 await prueba('favoritos se guardan y se ven en su sección', async () => {
   const { ctx, page } = await abrir({ width: 390 });
-  await page.click('.fav[data-fav="vela-250"]');
+  await page.click('.cat[data-cat="nuevo"]');
+  await page.click('.fav[data-fav="nuevo-60"]');
   await page.reload();
   await page.click('.bottom [data-go="favoritos"]');
   const nombres = await page.locator('.card h3').allTextContents();
   await ctx.close();
-  assert.deepEqual(nombres, ['Vela 250 g']);
+  assert.deepEqual(nombres, ['Perfume 60 ml']);
 });
 
 await browser.close(); server.close();

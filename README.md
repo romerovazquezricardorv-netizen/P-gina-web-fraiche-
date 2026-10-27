@@ -4,6 +4,14 @@ Página web donde tus clientes ven los productos (perfumes nuevos y rellenos, cr
 
 No necesita servidor ni base de datos: son archivos que GitHub Pages publica gratis.
 
+## Catálogo 2026
+
+`catalogo.js` tiene los 210 productos del Catálogo Fraiche 2026 (págs. 4 a 270) con su nombre, sus variantes (aromas, colores, diseños, tamaños), notas olfativas y foto. Las 526 fotos están en `img/`, recortadas del PDF. Se suman los 28 perfumes y rellenos por tamaño de `productos.js`: 238 en total.
+
+Precios: precio público del catálogo con la misma rebaja (−$3 desde $100, −$2 de $30 a $99, −$1 abajo de $30). Los envases de perfume se cobran según su tamaño y esencia, igual que "Perfume X ml".
+
+`herramientas/` guarda cómo se generó: `datos/*.py` (productos de cada sección y qué foto lleva cada uno) y `genera.py` (crea `catalogo.js` e `img/`). Para el catálogo siguiente se repite el proceso con el PDF nuevo.
+
 ## Archivos
 
 | Archivo | Qué es |
@@ -11,7 +19,9 @@ No necesita servidor ni base de datos: son archivos que GitHub Pages publica gra
 | `index.html` | La página |
 | `estilos.css` | El diseño (claro y oscuro según el celular) |
 | `tienda.js` | Dibujos, filtros, favoritos, carrito y pedido por WhatsApp. **Arriba está tu número de WhatsApp.** |
-| `productos.js` | El catálogo: nombres y precios. **Aquí cambias precios.** |
+| `productos.js` | Perfumes y rellenos por tamaño. **Aquí cambias esos precios.** |
+| `catalogo.js` | Productos del Catálogo 2026 con variantes y fotos (precios ya rebajados; se pueden editar aquí) |
+| `img/` | Fotos del catálogo |
 | `fotos/` | Aquí van las fotos de los productos |
 
 ## Cambiar el número de WhatsApp

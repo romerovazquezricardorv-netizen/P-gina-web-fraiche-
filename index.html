@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Distribuidor Independiente Fraiche</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Perfumes nuevos y rellenos, cremas, bodys, difusores y velas Fraiche. Arma tu pedido y mándalo por WhatsApp.">
+<meta name="description" content="Catálogo Fraiche 2026: perfumes nuevos y rellenos, envases, lociones, cremas, maquillaje, velas y difusores. Arma tu pedido y mándalo por WhatsApp.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#faf7f5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121014" media="(prefers-color-scheme: dark)">
@@ -23,7 +23,8 @@
     <nav class="top-links" aria-label="Secciones">
       <a href="#productos" data-cat="nuevo">Perfumes</a>
       <a href="#productos" data-cat="relleno">Rellenos</a>
-      <a href="#productos" data-cat="ambientales">Casa</a>
+      <a href="#productos" data-cat="envases">Envases</a>
+      <a href="#productos" data-cat="velas">Velas</a>
       <a href="#como">Cómo pedir</a>
     </nav>
     <button class="icon-btn" id="btnBuscar" aria-label="Buscar" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
@@ -31,7 +32,7 @@
   </div>
   <div class="wrap search" id="buscador" hidden>
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-    <input id="q" type="search" placeholder="Busca: 60 ml, crema, vela, relleno…" autocomplete="off" aria-label="Buscar productos">
+    <input id="q" type="search" placeholder="Busca: 60 ml, coco, vela, Disney, relleno…" autocomplete="off" aria-label="Buscar productos">
   </div>
 </header>
 
@@ -53,7 +54,8 @@
     </div>
     <p class="cat-note" id="nota" hidden></p>
     <div class="grid" id="grid"></div>
-    <p class="vacio" id="vacio" hidden>No encontramos productos con esa búsqueda. Prueba con otra palabra, por ejemplo “60 ml” o “vela”.</p>
+    <button class="mas" id="mas" hidden>Ver más</button>
+    <p class="vacio" id="vacio" hidden></p>
   </section>
 
   <section class="wrap info" id="como">
@@ -76,7 +78,7 @@
   <div class="wrap">
     <b>Distribuidor Independiente Fraiche</b>
     <p>Vendedor independiente de productos Fraiche. No es la tienda oficial de la marca.</p>
-    <p>Precios en pesos mexicanos, sujetos a cambio sin aviso. Las fotos y dibujos son de referencia.</p>
+    <p>Precios en pesos mexicanos, sujetos a cambio y a disponibilidad. Fotos del Catálogo Fraiche 2026, de referencia.</p>
   </div>
 </footer>
 
@@ -95,9 +97,14 @@
     <div class="p-body">
       <h2 id="pNombre"></h2>
       <p class="p-det" id="pDetalle"></p>
+      <div class="p-info" id="pInfo" hidden></div>
+      <fieldset class="opts" id="pVar" hidden></fieldset>
+      <p class="p-det" id="pVarNotas" hidden></p>
       <fieldset class="opts" id="pOpciones"><legend>Esencia</legend></fieldset>
-      <label class="fld" for="pAroma">Aroma que quieres</label>
-      <input id="pAroma" type="text" placeholder="Nombre o número del aroma (lo puedes dejar para WhatsApp)" autocomplete="off">
+      <div id="aromaBox">
+        <label class="fld" for="pAroma">Aroma que quieres</label>
+        <input id="pAroma" type="text" placeholder="Nombre o número del aroma (lo puedes dejar para WhatsApp)" autocomplete="off">
+      </div>
       <div class="p-buy">
         <div class="step" aria-label="Cantidad">
           <button type="button" id="pMenos" aria-label="Quitar uno">−</button>
@@ -140,6 +147,7 @@
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="productos.js"></script>
+<script src="catalogo.js"></script>
 <script src="tienda.js"></script>
 </body>
 </html>
