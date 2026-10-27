@@ -32,7 +32,7 @@
   </div>
   <div class="wrap search" id="buscador" hidden>
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-    <input id="q" type="search" placeholder="Busca un aroma (212 VIP Black), producto o nota…" autocomplete="off" aria-label="Buscar productos">
+    <input id="q" type="search" placeholder="Buscar aroma o producto" autocomplete="off" aria-label="Buscar productos">
   </div>
 </header>
 
@@ -106,7 +106,7 @@
       <div id="aromaBox">
         <div class="aroma-head"><span class="fld">Elige tu aroma</span><small id="pAromaTipo"></small></div>
         <div id="pBuscaAroma">
-          <input id="pAroma" type="search" placeholder="Busca: 212 VIP Black, vainilla, cítricos…" autocomplete="off" aria-label="Buscar aroma">
+          <input id="pAroma" type="search" placeholder="Buscar aroma" autocomplete="off" aria-label="Buscar aroma">
           <div class="gchips" id="pGen" role="group" aria-label="Género">
             <button type="button" data-gen="todos">Todos</button><button type="button" data-gen="Dama">Dama</button>
             <button type="button" data-gen="Caballero">Caballero</button><button type="button" data-gen="Unisex">Unisex</button>
@@ -155,6 +155,29 @@
       <input id="cNotas" type="text" placeholder="Ej. es para regalo">
       <button type="button" class="primary wa" id="enviar"><svg viewBox="0 0 24 24"><path d="M5 19l1.2-3.6A7.5 7.5 0 1112 19.5a7.6 7.6 0 01-3.6-.9z"/></svg>Enviar pedido por WhatsApp</button>
       <p class="small" id="waNota">Se abre WhatsApp con tu pedido escrito. Te confirmo existencias, pago y entrega.</p>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgTam" class="sheet" aria-labelledby="tTitulo">
+  <form method="dialog" class="sheet-in">
+    <button class="close" value="cancel" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h2 id="tTitulo">Elige tu tamaño</h2>
+    <div id="tFicha"></div>
+    <div class="seg tmodo" id="tModo" role="group" aria-label="Frasco">
+      <button type="button" data-tmodo="nuevo">Frasco nuevo</button>
+      <button type="button" data-tmodo="relleno">Relleno</button>
+    </div>
+    <p class="small izq" id="tNota"></p>
+    <div class="tsizes" id="tSizes"></div>
+    <fieldset class="opts" id="tColores" hidden></fieldset>
+    <div class="p-buy">
+      <div class="step" aria-label="Cantidad">
+        <button type="button" id="tMenos" aria-label="Quitar uno">−</button>
+        <output id="tCant">1</output>
+        <button type="button" id="tMas" aria-label="Agregar uno">+</button>
+      </div>
+      <button type="button" class="primary" id="tAgregar">Agregar</button>
     </div>
   </form>
 </dialog>

@@ -412,3 +412,21 @@ button:active:not(:disabled),label.opt:active,label.var:active{transform:scale(.
   .card,.acard{animation:none}
 }
 .list-head[hidden]{display:none}
+
+/* ventana de tamaños */
+.tmodo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.tmodo button{border:1.5px solid var(--line);background:var(--glass);border-radius:var(--r-sm);padding:12px;font-weight:700;color:var(--muted)}
+.tmodo button[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.tsizes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tsizes.rell{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+.tsize{display:flex;flex-direction:column;align-items:center;gap:2px;border:1.5px solid var(--line);background:var(--glass);border-radius:var(--r-sm);padding:8px 4px 10px;min-width:0}
+.tsize .timg{position:relative;width:100%;aspect-ratio:3/4;border-radius:8px;background:#fff;overflow:hidden;margin-bottom:4px}
+.tsize .timg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:4px}
+.tsize b{font-size:14px}
+.tsize small{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.tsize.on{border-color:var(--accent);background:var(--accent-soft)}
+.tsize.on small{color:var(--ink);font-weight:700}
+#tColores .var.on{border-color:var(--accent);background:var(--accent-soft)}
+#tColores[hidden]{display:none}
+#tFicha .ficha{margin-top:4px}
+.tsizes.rell .tsize{padding:14px 4px}

@@ -13,8 +13,8 @@ const WHATSAPP = '525574348740';
 const CATS = [
   { id: 'todo', nombre: 'Todo', h: 20, ilus: 'set', titulo: 'Todo el catálogo' },
   { id: 'aromas', nombre: 'Aromas', h: 330, ilus: 'frasco-chico', titulo: 'Aromas de la genealogía', nota: 'Busca tu perfume favorito por nombre, género o nota y pídelo en el tamaño que quieras.' },
-  { id: 'nuevo', nombre: 'Perfumes', h: 345, ilus: 'frasco', titulo: 'Perfumes por tamaño', nota: 'Frasco nuevo con el aroma que elijas, en esencia de línea, neeche o árabe.' },
-  { id: 'relleno', nombre: 'Rellenos', h: 150, ilus: 'relleno', titulo: 'Rellenos', nota: 'Traes tu frasco y lo llenamos. Cuesta menos que uno nuevo.' },
+  { id: 'nuevo', nombre: 'Perfumes', h: 345, ilus: 'frasco', titulo: 'Perfumes', nota: 'Frasco nuevo de 16, 30, 60 o 120 ml con el aroma que elijas, en esencia de línea, neeche o árabe.' },
+  { id: 'relleno', nombre: 'Rellenos', h: 150, ilus: 'relleno', titulo: 'Rellenos', nota: 'Rellenamos tu frasco de cualquier tamaño con el aroma que elijas. Cuesta menos que uno nuevo.' },
   { id: 'envases', nombre: 'Envases', h: 300, ilus: 'frasco-grande', titulo: 'Envases de perfume', nota: 'Elige el diseño y el aroma. El precio depende del tamaño y la esencia.' },
   { id: 'regalos', nombre: 'Regalos', h: 0, ilus: 'kit', titulo: 'Kits y regalos' },
   { id: 'bodys', nombre: 'Bodys', h: 95, ilus: 'body', titulo: 'Lociones corporales y bodys' },
@@ -50,14 +50,16 @@ const ILUS = { envases: 'frasco', regalos: 'kit', bodys: 'body', cremas: 'crema'
 // Un solo formato para todo: los productos del catálogo se adaptan al de productos.js.
 // Los de productos.js que ya vienen del catálogo con nombre y foto (kits, figuras) se quitan.
 const REPETIDOS = ['kit-for-you', 'set-destilados', 'capibara-pulpos'];
+// primero los perfumes (nuevos y rellenos), después el resto del catálogo
+const PERF = (window.PRODUCTOS || []).filter(p => (p.cat === 'nuevo' || p.cat === 'relleno') && !REPETIDOS.includes(p.id));
 const P = [
+  ...PERF.filter(p => p.cat === 'nuevo'), ...PERF.filter(p => p.cat === 'relleno'),
   ...(window.CATALOGO || []).map(p => ({
     ...p,
     detalle: [p.tipo, p.cont].filter(Boolean).join(' · '),
     ilus: ILUS[p.cat] || 'frasco',
     tags: [...(p.esp ? ['oferta'] : []), ...(p.cat === 'regalos' ? ['regalo'] : [])],
   })),
-  ...(window.PRODUCTOS || []).filter(p => (p.cat === 'nuevo' || p.cat === 'relleno') && !REPETIDOS.includes(p.id)),
 ];
 const byId = Object.fromEntries(P.map(p => [p.id, p]));
 const catOf = id => CATS.find(c => c.id === id) || CATS[0];
@@ -132,7 +134,7 @@ let cart = store.get('fr_cart', []).map(it => ({ v: -1, ...it }))
 
 /* ---------- carrusel ---------- */
 const SLIDES = [
-  { glow: '#e0435c', glowBtn: '#e0435c', glowInk: '#ff9aa9', t: 'Tu aroma,<br><em>tu tamaño</em>', p: 'Perfumes de 4 a 120 ml en esencia de línea, neeche o árabe.', cta: 'Ver perfumes', cat: 'nuevo', img: 'img/nicola-porcella-1.webp', ilus: 'frasco', ml: '60' },
+  { glow: '#e0435c', glowBtn: '#e0435c', glowInk: '#ff9aa9', t: 'Tu aroma,<br><em>tu tamaño</em>', p: 'Frascos de 16, 30, 60 y 120 ml en esencia de línea, neeche o árabe.', cta: 'Ver perfumes', cat: 'nuevo', img: 'img/botellas/120.webp', ilus: 'frasco', ml: '60' },
   { glow: '#1f9a62', glowBtn: '#1b8a58', glowInk: '#7fe0b2', t: 'Rellena<br><em>y ahorra</em>', p: () => `Trae tu frasco: 60 ml desde ${money(minPrice(byId['relleno-60']))}.`, cta: 'Ver rellenos', cat: 'relleno', ilus: 'relleno', ml: '60' },
   { glow: '#7a4cd9', glowBtn: '#6a3fc6', glowInk: '#c9b2ff', t: 'Envases<br><em>de colección</em>', p: 'Más de 30 diseños para dama y caballero.', cta: 'Ver envases', cat: 'envases', img: 'img/linea-miss-3.webp', ilus: 'frasco-grande' },
   { glow: '#d9772b', glowBtn: '#c8661c', glowInk: '#ffc58f', t: 'Tu casa<br><em>huele a ti</em>', p: 'Velas, difusores y aromas para el auto.', cta: 'Ver velas', cat: 'velas', img: 'img/velas-aromaticas-2.webp', ilus: 'vela' },
@@ -307,7 +309,62 @@ function renderAromas() {
   document.querySelectorAll('#pGen button').forEach(b => b.setAttribute('aria-pressed', b.dataset.gen === aromaGen));
 }
 const aromaTexto = () => aromaSel ? `${aromaSel.n} (${aromaSel.g})` : $('#pAroma').value.trim();
-const pedirAroma = a => a.e === 'ambiental' ? openProduct('difusor-80', { aroma: a }) : openProduct('nuevo-60', { esencia: a.e, aroma: a });
+const pedirAroma = a => a.e === 'ambiental' ? openProduct('difusor-80', { aroma: a }) : abrirTamanos(a);
+
+/* ---------- ventana de tamaños: el aroma elegido en frasco nuevo (16, 30, 60, 120 ml) o relleno ---------- */
+const TAM = ['16', '30', '60', '120'];
+let tA = null, tModo = 'nuevo', tMl = '60', tColor = 0, tCant = 1;
+// frascos que van con el género del aroma (los de 16 ml son para dama y caballero)
+const frascos = (ml, g) => {
+  const p = byId['nuevo-' + ml]; if (!p || !p.var) return [];
+  const todos = p.var.map((v, i) => ({ ...v, i }));
+  const mios = todos.filter(v => g === 'Unisex' || !/^(Dama|Caballero)/.test(v.n) || v.n.startsWith(g));
+  return mios.length ? mios : todos;
+};
+const prodTam = () => byId[(tModo === 'nuevo' ? 'nuevo-' : 'relleno-') + tMl];
+const precioTam = (modo, ml) => { const p = byId[(modo === 'nuevo' ? 'nuevo-' : 'relleno-') + ml]; return p && p.precios[tA.e]; };
+function abrirTamanos(a) {
+  tA = a; tModo = 'nuevo'; tMl = '60'; tCant = 1; tColor = frascos('60', a.g)[0]?.i ?? -1;
+  $('#tFicha').innerHTML = fichaAroma(a);
+  renderTamanos();
+  $('#dlgTam').showModal();
+  $('#dlgTam').scrollTop = 0;
+}
+function renderTamanos() {
+  const a = tA;
+  document.querySelectorAll('#tModo button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tmodo === tModo));
+  const lista = tModo === 'nuevo' ? TAM : PERF.filter(p => p.cat === 'relleno' && p.precios[a.e] != null).map(p => p.id.replace('relleno-', ''));
+  if (!lista.includes(tMl)) tMl = lista.includes('60') ? '60' : lista[0];
+  $('#tSizes').className = 'tsizes' + (tModo === 'relleno' ? ' rell' : '');
+  $('#tSizes').innerHTML = lista.map(ml => {
+    const f = tModo === 'nuevo' ? frascos(ml, a.g)[0] : null, pr = precioTam(tModo, ml), pp = byId[(tModo === 'nuevo' ? 'nuevo-' : 'relleno-') + ml];
+    const foto = f ? imgTag(f.img, `Frasco ${ml} ml`) : '';
+    return `<button type="button" class="tsize${ml === tMl ? ' on' : ''}" data-tml="${ml}">
+      ${foto ? `<span class="timg">${foto}</span>` : ''}<b>${esc(pp.nombre.replace(/^(Perfume|Relleno) /, ''))}</b><small>${pr != null ? money(pr) : '—'}</small></button>`;
+  }).join('');
+  const fs = tModo === 'nuevo' ? frascos(tMl, a.g) : [];
+  if (!fs.some(f => f.i === tColor)) tColor = fs[0] ? fs[0].i : -1;
+  $('#tColores').hidden = fs.length < 2;
+  $('#tColores').innerHTML = '<legend>Color del frasco</legend><div class="vars">' + fs.map(f => `
+    <button type="button" class="var con-foto${f.i === tColor ? ' on' : ''}" data-tcolor="${f.i}"><span class="vimg">${imgTag(f.img, f.n)}</span><span class="vn">${esc(f.n)}</span></button>`).join('') + '</div>';
+  $('#tNota').textContent = tModo === 'relleno' ? 'Trae tu frasco: lo rellenamos del tamaño que elijas.'
+    : (a.g === 'Unisex' ? 'Aroma unisex: elige el frasco que más te guste.' : `Frascos para ${a.g.toLowerCase()}, como tu aroma.`);
+  $('#tCant').textContent = tCant;
+  const u = precioTam(tModo, tMl);
+  $('#tAgregar').textContent = `Agregar · ${money(u * tCant)}`;
+}
+$('#tModo').addEventListener('click', e => { const b = e.target.closest('[data-tmodo]'); if (b) { tModo = b.dataset.tmodo; renderTamanos(); } });
+$('#tSizes').addEventListener('click', e => { const b = e.target.closest('[data-tml]'); if (b) { tMl = b.dataset.tml; vibra(8); renderTamanos(); } });
+$('#tColores').addEventListener('click', e => { const b = e.target.closest('[data-tcolor]'); if (b) { tColor = +b.dataset.tcolor; renderTamanos(); } });
+$('#tMenos').addEventListener('click', () => { tCant = Math.max(1, tCant - 1); renderTamanos(); });
+$('#tMas').addEventListener('click', () => { tCant = Math.min(99, tCant + 1); renderTamanos(); });
+$('#tAgregar').addEventListener('click', () => {
+  const p = prodTam();
+  addToCart(p.id, tModo === 'nuevo' ? tColor : -1, tA.e, `${tA.n} (${tA.g})`, tCant);
+  vuelaAlCarrito(document.querySelector('#tSizes .tsize.on .timg') || $('#tFicha'));
+  toast(`${p.nombre} · ${tA.n} agregado al carrito`);
+  $('#dlgTam').close();
+});
 const aromaCard = (a, i) => `<article class="acard" style="--i:${i % PAGINA}">
   <span class="fam f-${slug(a.fam)}">${esc(a.fam)}</span><small class="insp">Inspirado olfativamente en</small>
   <h3>${esc(a.n)}</h3><span class="det">${esc(a.g)} · ${TIPO_AROMA[a.e]}</span>
@@ -407,7 +464,15 @@ function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add
 /* ---------- eventos ---------- */
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return;
-  if (t.dataset.aroma) { aromaSel = AROMAS[+t.dataset.aroma]; renderAromas(); vibra(8); return; }
+  if (t.dataset.aroma) {
+    aromaSel = AROMAS[+t.dataset.aroma];
+    // frasco nuevo: se elige solo el frasco de dama o de caballero según el aroma
+    if (actual.cat === 'nuevo' && actual.var && aromaSel.g !== 'Unisex') {
+      const i = actual.var.findIndex(v => v.n.startsWith(aromaSel.g));
+      if (i >= 0 && i !== vSel) { vSel = i; const r = $(`#pVar input[value="${i}"]`); if (r) r.checked = true; renderVariante(); }
+    }
+    renderAromas(); vibra(8); return;
+  }
   if (t.id === 'cambiarAroma') { aromaSel = null; $('#pAroma').value = ''; renderAromas(); $('#pAroma').focus(); return; }
   if (t.dataset.gen) { aromaGen = t.dataset.gen; renderAromas(); return; }
   if (t.dataset.pedir) { pedirAroma(AROMAS[+t.dataset.pedir]); return; }

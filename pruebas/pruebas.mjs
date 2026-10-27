@@ -41,7 +41,7 @@ await prueba('carga sin errores y muestra todo el catálogo', async () => {
   await page.click('#mas');
   const n2 = await page.locator('.card').count();
   await ctx.close();
-  assert.ok(total >= 230, `solo ${total} productos`);
+  assert.ok(total >= 220, `solo ${total} productos`);
   assert.equal(n, 48); assert.equal(n2, 96);
   assert.equal(conteo, `${total} productos`);
   assert.deepEqual(errors, []);
@@ -164,21 +164,46 @@ await prueba('favoritos se guardan y se ven en su sección', async () => {
   assert.deepEqual(nombres, ['Perfume 60 ml']);
 });
 
-await prueba('buscar "212 VIP Black" muestra el aroma y lo pide en perfume de 60 ml', async () => {
+await prueba('buscar "212 VIP Black" abre la ventana de tamaños con frascos de caballero', async () => {
   const { ctx, page, errors } = await abrir();
   await page.click('#btnBuscar'); await page.fill('#q', '212 VIP Black');
   const nombres = await page.locator('#aromasRes .acard h3').allTextContents();
   await page.click('#aromasRes .acard:has(h3:text-is("212 VIP Black")) .pedir');
-  const titulo = await page.textContent('#pNombre');
-  const ficha = await page.textContent('#pAromaSel');
-  await page.click('#pAgregar');
+  await page.waitForSelector('#dlgTam[open]');
+  const tamanos = await page.locator('#tSizes .tsize b').allTextContents();
+  const colores = await page.locator('#tColores .vn').allTextContents();
+  await page.click('#tSizes [data-tml="120"]');
+  const boton = await page.textContent('#tAgregar');
+  await page.click('#tAgregar');
   const it = await page.evaluate(() => window.tienda.cart[0]);
+  await page.click('#aromasRes .acard:has(h3:text-is("212 VIP Black")) .pedir');
+  await page.click('#tModo [data-tmodo="relleno"]');
+  const rellenos = await page.locator('#tSizes .tsize').count();
   await ctx.close();
   assert.ok(nombres.includes('212 VIP Black'), nombres.join(', '));
-  assert.equal(titulo, 'Perfume 60 ml');
-  assert.ok(ficha.includes('Caballero') && ficha.includes('Lavanda'), ficha);
-  assert.deepEqual([it.id, it.esencia, it.aroma], ['nuevo-60', 'linea', '212 VIP Black (Caballero)']);
+  assert.deepEqual(tamanos, ['16 ml', '30 ml', '60 ml', '120 ml']);
+  assert.ok(colores.length && colores.every(c => c.startsWith('Caballero')), colores.join(', '));
+  assert.ok(boton.startsWith('Agregar · $'), boton);
+  assert.deepEqual([it.id, it.v, it.esencia, it.aroma], ['nuevo-120', 0, 'linea', '212 VIP Black (Caballero)']);
+  assert.ok(rellenos > 4, `solo ${rellenos} tamaños de relleno`);
   assert.deepEqual(errors, []);
+});
+
+await prueba('perfumes nuevos: solo 16, 30, 60 y 120 ml; elegir un aroma de dama cambia al frasco de dama', async () => {
+  const { ctx, page } = await abrir();
+  await page.click('.cat[data-cat="nuevo"]');
+  const nombres = await page.locator('.card h3').allTextContents();
+  await page.click('.card .add[data-open="nuevo-60"]');
+  await page.click('#pGen button[data-gen="Dama"]');
+  await page.fill('#pAroma', 'vainilla');
+  await page.click('#pAromas .aroma >> nth=0');
+  const v = await page.inputValue('#pVar input:checked');
+  const nombreV = await page.evaluate(i => window.tienda.P.find(p => p.id === 'nuevo-60').var[i].n, +v);
+  const ph = await page.getAttribute('#q', 'placeholder');
+  await ctx.close();
+  assert.deepEqual(nombres, ['Perfume 120 ml', 'Perfume 60 ml', 'Perfume 30 ml', 'Perfume 16 ml']);
+  assert.ok(nombreV.startsWith('Dama'), nombreV);
+  assert.equal(ph, 'Buscar aroma o producto');
 });
 
 await prueba('al elegir esencia neeche, el buscador de aromas muestra solo aromas neeche', async () => {
