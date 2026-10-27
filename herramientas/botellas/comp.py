@@ -1,7 +1,9 @@
 import os, numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 O = 'out2/'; R = '/home/user/p-gina-web-fraiche-/img/botellas/'; os.makedirs(R, exist_ok=True)
-def L(n): return Image.open(O + [f for f in os.listdir(O) if f.startswith(n + '-')][0]).convert('RGBA')
+import sys; sys.path.insert(0, '/tmp/claude-0/bot')
+from uniforma import normaliza
+def L(n): return normaliza(Image.open(O + [f for f in os.listdir(O) if f.startswith(n + '-')][0]).convert('RGBA'))
 def split(im):  # separa dos botellas por la columna vacía central
     a = np.array(im.split()[3]) > 30; col = a.sum(0); w = len(col)
     mid = range(int(w * .3), int(w * .7)); x = min(mid, key=lambda i: col[i])
