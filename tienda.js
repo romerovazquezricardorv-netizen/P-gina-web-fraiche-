@@ -324,13 +324,15 @@ function generoFrasco(p, v) {
   if (p.id === 'nicola-porcella' || CABALLERO.includes(p.id)) return 'Caballero';
   return 'Ambos';
 }
+// estos envases ya son los frascos principales de cada tamaño (no se repiten)
+const YA = ['perseo', 'liliana', 'for-men', 'torso-woman-man'];
 // todos los frascos de un tamaño: primero tus botellas y después los envases del catálogo
 function frascosDe(ml) {
   const out = [];
   const nuevo = byId['nuevo-' + ml];
   (nuevo && nuevo.var || []).forEach((v, i) => out.push({ id: nuevo.id, v: i, n: v.n, img: v.img, g: generoFrasco(nuevo, v), propio: true }));
   for (const p of P) {
-    if (p.cat !== 'envases') continue;
+    if (p.cat !== 'envases' || YA.includes(p.id)) continue;
     if (p.var) p.var.forEach((v, i) => { if (String(v.ml || p.envase) === ml && !p.prox)
       out.push({ id: p.id, v: i, n: `${p.nombre.replace(/ · .*$/, '')} · ${v.n.replace(/\s*\d+ ml$/, '').replace(/ · .*$/, '')}`, img: v.img || p.img, g: generoFrasco(p, v) }); });
     else if (String(p.envase) === ml && !p.prox) out.push({ id: p.id, v: -1, n: p.nombre, img: p.img, g: generoFrasco(p) });

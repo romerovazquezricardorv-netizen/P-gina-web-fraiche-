@@ -148,7 +148,7 @@ await prueba('agregar 2 perfumes de 60 ml en esencia árabe y armar el mensaje d
   await ctx.close();
   assert.equal(boton, 'Agregar · $484');
   assert.equal(cuenta, '2');
-  assert.ok(msg.includes('Perfume 60 ml · Caballero · negro · Esencia árabe · Aroma: Aroma de prueba'), msg);
+  assert.ok(msg.includes('Perfume 60 ml · Caballero · Perseo turquesa · Esencia árabe · Aroma: Aroma de prueba'), msg);
   assert.ok(msg.includes('2 × $242 = $484') && msg.includes('*Total: $484*') && msg.includes('Nombre: Ana') && msg.includes('Entrega: Paso a recoger'), msg);
   assert.deepEqual(errors, []);
 });
