@@ -59,7 +59,7 @@
     <p class="cat-note" id="nota" hidden></p>
     <div class="grid" id="grid"></div>
     <button class="mas" id="mas" hidden>Ver más</button>
-    <p class="vacio" id="vacio" hidden></p>
+    <div class="vacio" id="vacio" hidden></div>
   </section>
 
   <section class="wrap info" id="como">
@@ -135,7 +135,11 @@
     <button class="close" value="cancel" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <h2 id="cTitulo">Tu pedido</h2>
     <ul class="items" id="items"></ul>
-    <p class="vacio" id="carritoVacio">Tu carrito está vacío. Agrega productos y aquí armas tu pedido.</p>
+    <div class="vacio" id="carritoVacio">
+      <div class="vacio-ic" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 22h36l-3 28a4 4 0 01-4 4H21a4 4 0 01-4-4z"/><path d="M24 26v-6a8 8 0 0116 0v6"/></svg></div>
+      <h3>Tu carrito está vacío</h3><p>Elige un aroma y su tamaño, y aquí armas tu pedido para mandarlo por WhatsApp.</p>
+      <button type="button" class="vacio-cta" data-cat="nuevo">Ver perfumes <span aria-hidden="true">→</span></button>
+    </div>
     <div id="checkout">
       <div class="total"><span>Total</span><b id="total"></b></div>
       <label class="fld" for="cNombre">Tu nombre</label>

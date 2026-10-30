@@ -121,6 +121,21 @@ const art = (p, v) => {
   return (ART[p.ilus] || ART.frasco)(p.ml || '');
 };
 
+/* ---------- pantallas vacías ---------- */
+const ICONO_VACIO = {
+  buscar: '<circle cx="27" cy="27" r="15"/><path d="M38 38l12 12"/><path d="M21 27h12" opacity=".5"/>',
+  corazon: '<path d="M32 50S12 38 12 24a10 10 0 0120-4 10 10 0 0120 4c0 14-20 26-20 26z"/>',
+  bolsa: '<path d="M14 22h36l-3 28a4 4 0 01-4 4H21a4 4 0 01-4-4z"/><path d="M24 26v-6a8 8 0 0116 0v6"/>',
+  frasco: '<rect x="26" y="8" width="12" height="8" rx="2"/><rect x="18" y="16" width="28" height="38" rx="8"/><path d="M26 34h12" opacity=".5"/>',
+};
+const SUGERENCIAS = ['vainilla', '60 ml', 'vela', 'coco', 'rosa'];
+function vacio({ icono, titulo, texto, sugerir, cta, ctaCat }) {
+  return `<div class="vacio-ic" aria-hidden="true"><svg viewBox="0 0 64 64">${ICONO_VACIO[icono]}</svg></div>
+    <h3>${titulo}</h3><p>${texto}</p>
+    ${sugerir ? `<div class="vacio-sug">${SUGERENCIAS.map(w => `<button type="button" class="pill" data-sugiere="${w}">${w}</button>`).join('')}</div>` : ''}
+    ${cta ? `<button type="button" class="vacio-cta" data-cat="${ctaCat}">${cta} <span aria-hidden="true">→</span></button>` : ''}`;
+}
+
 /* ---------- estado ---------- */
 const store = {
   get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } },
@@ -248,8 +263,9 @@ function renderGrid(reset = true) {
   const soloAromas = !list.length && !$('#aromasRes').hidden;
   document.querySelector('#productos > .list-head').hidden = soloAromas;
   $('#vacio').hidden = list.length > 0 || soloAromas;
-  $('#vacio').textContent = soloFavs ? 'Aún no guardas favoritos. Toca el corazón de un producto para guardarlo aquí.'
-    : 'No encontramos productos con esa búsqueda. Prueba con otra palabra, por ejemplo “60 ml”, “vela” o “coco”.';
+  $('#vacio').innerHTML = soloFavs
+    ? vacio({ icono: 'corazon', titulo: 'Aún no tienes favoritos', texto: 'Toca el corazón de un producto y aquí lo encuentras rápido.', cta: 'Ver perfumes', ctaCat: 'nuevo' })
+    : vacio({ icono: 'buscar', titulo: q ? `No encontramos “${esc(q)}”` : 'No hay productos aquí', texto: 'Prueba con otra palabra o elige una de estas:', sugerir: true, cta: 'Ver todo el catálogo', ctaCat: 'todo' });
 }
 function setCat(id, scroll) {
   cat = id; soloFavs = false; renderCats(); renderGrid(); setNav('categorias');
@@ -429,7 +445,7 @@ function renderAromaGrid() {
   $('#mas').hidden = list.length <= mostrados;
   $('#mas').textContent = `Ver más (${list.length - mostrados})`;
   $('#vacio').hidden = list.length > 0;
-  $('#vacio').textContent = 'No encontramos ese aroma. Prueba con otra palabra, por ejemplo “vainilla” o “212”.';
+  $('#vacio').innerHTML = vacio({ icono: 'frasco', titulo: 'No encontramos ese aroma', texto: 'Prueba con una nota (vainilla, rosa, coco) o quita algún filtro.', cta: 'Ver todos los aromas', ctaCat: 'aromas' });
 }
 // en la búsqueda general, los aromas que coinciden salen arriba de los productos
 function renderAromaRes() {
@@ -522,7 +538,10 @@ document.addEventListener('click', e => {
   if (t.dataset.pedir) { pedirAroma(AROMAS[+t.dataset.pedir]); return; }
   if (t.dataset.agen) { aGen = t.dataset.agen; renderGrid(); return; }
   if (t.dataset.atipo) { aTipo = t.dataset.atipo; renderGrid(); return; }
-  if (t.dataset.cat) { e.preventDefault(); setCat(t.dataset.cat, !t.classList.contains('cat')); return; }
+  if (t.dataset.sugiere) { $('#q').value = t.dataset.sugiere; $('#q').dispatchEvent(new Event('input')); return; }
+  if (t.dataset.cat) { e.preventDefault(); const dlg = t.closest('dialog[open]'); if (dlg) dlg.close();
+    if (t.classList.contains('vacio-cta') && q) { q = ''; $('#q').value = ''; }
+    setCat(t.dataset.cat, !t.classList.contains('cat')); return; }
   if (t.dataset.tag) { tag = t.dataset.tag; renderCats(); renderGrid(); return; }
   if (t.dataset.open) { openProduct(t.dataset.open); return; }
   if (t.dataset.fav) {
@@ -552,6 +571,10 @@ $('#btnBuscar').addEventListener('click', () => {
   const box = $('#buscador'), open = box.hidden; box.hidden = !open; $('#btnBuscar').setAttribute('aria-expanded', open);
   if (open) $('#q').focus(); else if (q) { q = ''; $('#q').value = ''; renderGrid(); }
 });
+// fotos: aparecen suave al cargar; mientras tanto su caja muestra un brillo
+['load', 'error'].forEach(ev => document.addEventListener(ev, e => { if (e.target.tagName === 'IMG') e.target.classList.add('lista'); }, true));
+new MutationObserver(() => document.querySelectorAll('img:not(.lista)').forEach(i => { if (i.complete && i.naturalWidth) i.classList.add('lista'); }))
+  .observe(document.body, { childList: true, subtree: true });
 $('#q').addEventListener('input', e => {
   q = e.target.value.trim(); if (q) { cat = 'todo'; soloFavs = false; renderCats(); } renderGrid();
 });

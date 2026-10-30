@@ -128,7 +128,7 @@ h1,h2{text-wrap:balance}
 .price b{font-size:19px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .add{width:42px;height:42px;border-radius:13px;border:0;background:var(--dark);color:var(--on-dark);display:grid;place-items:center;flex:none}
 .add svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.vacio{color:var(--muted);text-align:center;padding:28px 8px}
+.vacio{color:var(--muted);text-align:center;padding:28px 8px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .vacio[hidden]{display:none}
 
 /* fotos del catálogo: fondo blanco para que el producto se vea limpio */
@@ -313,8 +313,8 @@ body::before{content:"";position:fixed;inset:-20vmax;z-index:-1;pointer-events:n
   transform:scale(0);animation:onda .6s cubic-bezier(.2,.7,.3,1) forwards}
 .primary .rip,.add .rip,.pill[aria-pressed=true] .rip{background:radial-gradient(circle,rgba(255,255,255,.5),rgba(255,255,255,0) 65%)}
 @keyframes onda{60%{opacity:.9}to{transform:scale(1);opacity:0}}
-button,.cta,label.opt,label.var{transition:transform .25s var(--spring),box-shadow .25s,background-color .2s}
-button:active:not(:disabled),label.opt:active,label.var:active{transform:scale(.95)}
+button,.cta,label.opt,label.var{transition:transform .16s var(--ease),box-shadow .25s var(--ease),background-color .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease)}
+button:active:not(:disabled),label.opt:active,label.var:active{transform:scale(.97)}
 .card{transition:transform .35s var(--spring),box-shadow .3s}
 .card:active{transform:scale(.98)}
 @media (hover:hover){.card:hover{transform:translateY(-4px);box-shadow:0 2px 4px rgba(20,20,20,.06),0 18px 40px rgba(20,20,20,.14)}}
@@ -327,7 +327,7 @@ button:active:not(:disabled),label.opt:active,label.var:active{transform:scale(.
 .vuela svg{width:80%;height:80%}
 
 /* entrada escalonada de tarjetas */
-.card,.acard{animation:aparece .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 28ms)}
+.card,.acard{animation:aparece .45s var(--ease) both;animation-delay:calc(min(var(--i,0),10) * 30ms)}
 @keyframes aparece{from{opacity:0;transform:translateY(18px) scale(.97)}}
 .sheet[open]{animation:sube .5s var(--spring)}
 @keyframes sube{from{transform:translateY(60px) scale(.98);opacity:.3}}
@@ -390,7 +390,7 @@ button:active:not(:disabled),label.opt:active,label.var:active{transform:scale(.
 .check svg{width:62px;height:62px;fill:none;stroke:#fff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round}
 .check circle{stroke:rgba(255,255,255,.35);stroke-width:2.5;stroke-dasharray:145;stroke-dashoffset:145;animation:traza .7s .2s ease-out forwards}
 .check path{stroke-dasharray:40;stroke-dashoffset:40;animation:traza .45s .5s ease-out forwards}
-@keyframes pop{from{transform:scale(.3);opacity:0}}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
 @keyframes traza{to{stroke-dashoffset:0}}
 .folio{margin:0;color:var(--muted);font-weight:700;letter-spacing:.06em;animation:aparece .5s .45s both}
 .ok-resumen{display:flex;justify-content:space-between;align-items:baseline;width:100%;padding:12px 16px;border-radius:var(--r-md);background:var(--glass);border:1px solid var(--line);animation:aparece .5s .55s both}
@@ -438,3 +438,46 @@ button:active:not(:disabled),label.opt:active,label.var:active{transform:scale(.
 .slide.prod h2{font-size:clamp(20px,5.6vw,34px);line-height:1.05;text-transform:none;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .slide.prod p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .slide p b{color:var(--glow-ink);white-space:nowrap}
+
+/* =========================================================
+   Estados: vacío, cargando, hover y al tocar
+   ========================================================= */
+/* pantallas vacías */
+.vacio-ic{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;margin-bottom:6px;
+  background:radial-gradient(circle at 30% 25%,var(--accent-soft),color-mix(in srgb,var(--beige) 70%,transparent));animation:flota 3.6s ease-in-out infinite}
+.vacio-ic svg{width:40px;height:40px;fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+@keyframes flota{50%{transform:translateY(-4px)}}
+.vacio h3{margin:0;color:var(--ink);font-size:18px;letter-spacing:-.01em;text-wrap:balance}
+.vacio p{margin:0;max-width:34ch;text-wrap:pretty}
+.vacio-sug{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:6px}
+.vacio-sug .pill{padding:7px 14px;font-size:13px}
+.vacio-cta{margin-top:10px;border:0;border-radius:99px;padding:11px 20px;font-weight:700;background:var(--dark);color:var(--on-dark);display:inline-flex;gap:8px;align-items:center}
+.vacio:not([hidden]){animation:aparece .4s var(--ease) both}
+
+/* fotos cargando: brillo beige que se mueve y la foto aparece suave al llegar */
+.media,.vimg,.timg,.slide-art.foto,.mini{--brillo:color-mix(in srgb,var(--beige) 55%,var(--surface))}
+.media:has(> img:not(.lista)),.vimg:has(> img:not(.lista)),.timg:has(> img:not(.lista)),.mini:has(> img:not(.lista)){
+  background:linear-gradient(100deg,var(--brillo) 30%,color-mix(in srgb,var(--surface) 92%,var(--beige)) 50%,var(--brillo) 70%) 0 0/300% 100% !important;   /* gana al fondo blanco de las fotos */
+  animation:brilla 1.3s linear infinite}
+@keyframes brilla{to{background-position:-150% 0}}
+.media img,.vimg img,.timg img,.mini img,.slide-art.foto img{opacity:0;transform:scale(.985);transition:opacity .35s var(--ease),transform .45s var(--ease)}
+.media img.lista,.vimg img.lista,.timg img.lista,.mini img.lista,.slide-art.foto img.lista{opacity:1;transform:none}
+
+/* hover (solo con mouse) */
+@media (hover:hover) and (pointer:fine){
+  .pill:not([aria-pressed=true]):hover{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .cat:hover .ring{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,20,20,.1)}
+  .var:hover,.tsize:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+  .var:hover .vimg img.lista,.tsize:hover .timg img.lista{transform:scale(1.04)}
+  .mas:hover{border-color:var(--accent);color:var(--accent)}
+  .add:hover{background:var(--accent);color:var(--on-accent)}
+  .primary:not(:disabled):hover,.slide .cta:hover,.pedir:hover{filter:brightness(1.08);box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 30%,transparent)}
+  .vacio-cta:hover{background:var(--accent);color:var(--on-accent)}
+  .acard{transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+  .acard:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(20,20,20,.06),0 14px 32px rgba(20,20,20,.12)}
+  .card:hover .media img.lista{transform:scale(1.03)}
+  .dots button:not([aria-selected=true]):hover{background:color-mix(in srgb,var(--accent) 45%,var(--line))}
+}
+/* al tocar: respuesta inmediata */
+.cat:active .ring{transform:scale(.94)}
+.acard:active{transform:scale(.985)}
