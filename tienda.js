@@ -518,7 +518,44 @@ function mensaje() {
 }
 
 /* ---------- navegación de abajo ---------- */
-function setNav(id) { document.querySelectorAll('.bottom [data-go]').forEach(b => b.classList.toggle('on', b.dataset.go === id)); }
+function setNav(id) {
+  if (navActual === id) return;
+  navActual = id;
+  document.querySelectorAll('.bottom [data-go]').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+  mueveGota(true);
+}
+/* gota de vidrio líquido de la barra de abajo: se estira hacia el botón nuevo y se asienta con un pequeño rebote */
+let navActual = 'inicio', gotaPos = null;
+const gota = document.createElement('span'); gota.className = 'gota'; gota.setAttribute('aria-hidden', 'true');
+$('.bottom').prepend(gota);
+function mueveGota(animar) {
+  const on = $('.bottom .on'), nav = $('.bottom');
+  if (!on) { gota.style.opacity = 0; gotaPos = null; return; }
+  const r = on.getBoundingClientRect(), n = nav.getBoundingClientRect();
+  const w = Math.min(r.width - 6, 76), x = r.left - n.left + (r.width - w) / 2;
+  const antes = gotaPos; gotaPos = { x, w };
+  gota.style.width = w + 'px'; gota.style.transform = `translateX(${x}px)`; gota.style.opacity = 1;
+  if (!animar || !antes || antes.x === x || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const izq = Math.min(antes.x, x), ancho = Math.max(antes.x + antes.w, x + w) - izq;
+  gota.animate([
+    { transform: `translateX(${antes.x}px)`, width: antes.w + 'px' },
+    { transform: `translateX(${izq}px) scaleY(.78)`, width: ancho + 'px', offset: .42 },
+    { transform: `translateX(${x}px) scale(1.08, .94)`, width: w + 'px', offset: .72 },
+    { transform: `translateX(${x}px) scale(.97, 1.03)`, width: w + 'px', offset: .88 },
+    { transform: `translateX(${x}px)`, width: w + 'px' },
+  ], { duration: 560, easing: 'cubic-bezier(.3,.7,.2,1)' });
+}
+addEventListener('resize', () => mueveGota(false));
+// al desplazarte, la gota sigue en qué parte estás (inicio o el catálogo)
+let espiaPendiente = false;
+addEventListener('scroll', () => {
+  if (espiaPendiente) return; espiaPendiente = true;
+  requestAnimationFrame(() => {
+    espiaPendiente = false;
+    if (soloFavs || !['inicio', 'categorias'].includes(navActual)) return;
+    setNav($('#productos').getBoundingClientRect().top < innerHeight * .45 ? 'categorias' : 'inicio');
+  });
+}, { passive: true });
 function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 2200); }
 
 /* ---------- eventos ---------- */
@@ -564,7 +601,7 @@ document.addEventListener('click', e => {
     else toast('Pronto podrás escribirnos por WhatsApp desde aquí');
     return;
   }
-  if (go === 'inicio' || go === 'categorias') setNav(go);
+  if (go === 'inicio' || go === 'categorias') { if (soloFavs) { soloFavs = false; renderCats(); renderGrid(); } setNav(go); }
 });
 $('#btnCarrito').addEventListener('click', () => { renderCart(); $('#dlgCarrito').showModal(); });
 $('#btnBuscar').addEventListener('click', () => {
@@ -665,4 +702,5 @@ function vuelaAlCarrito(desde) {
 
 /* ---------- arranque ---------- */
 renderHero(); renderCats(); renderGrid(); renderCount(); startAutoplay();
+mueveGota(false); if (document.fonts) document.fonts.ready.then(() => mueveGota(false));
 window.tienda = { mensaje, P, AROMAS, get cart() { return cart; } };   // usado por las pruebas
