@@ -45,9 +45,7 @@ h1,h2{text-wrap:balance}
   border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 .top-in{display:flex;align-items:center;gap:6px;height:64px}
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
-.brand-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;
-  background:linear-gradient(140deg,var(--accent-2),var(--accent));color:var(--on-accent)}
-.brand-mark svg{width:20px;height:20px;fill:currentColor}
+.brand-mark{width:42px;height:42px;flex:none;display:block;filter:drop-shadow(0 3px 8px rgba(0,0,0,.18))}
 .brand-txt{display:flex;flex-direction:column;line-height:1.1;min-width:0}
 .brand-txt b{font-weight:800;font-style:italic;letter-spacing:-.02em;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand-txt small{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
