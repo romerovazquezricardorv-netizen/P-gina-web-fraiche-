@@ -45,7 +45,7 @@ En `tienda.js`, línea `const WHATSAPP = '525574348740';`: 52 (México) seguido 
 
 En `productos.js` cada producto tiene `precios: {linea: 212, neeche: 262, arabe: 242}`. Cambia el número y guarda.
 
-Los precios salieron de la lista F099 Cuautitlán (precio público) con esta rebaja: −$3 desde $100, −$2 de $30 a $99, −$1 abajo de $30, sin centavos. Fijos: 60 ml nuevo $212 / relleno $144, 30 ml nuevo $127 / relleno $71, 16 ml nuevo $73 / relleno $36 (esencia de línea).
+Los precios salieron de la lista F099 Cuautitlán (precio público) con esta rebaja: −$3 desde $100, −$2 de $30 a $99, −$1 abajo de $30, sin centavos. Fijos: 60 ml nuevo $212 / relleno $144, 30 ml nuevo $127 / relleno $71, 16 ml nuevo $73 / relleno $36 (esencia de línea). El nuevo de 32 ml usa el precio del envase 4YOU del catálogo ($132 línea).
 
 ## Poner fotos
 

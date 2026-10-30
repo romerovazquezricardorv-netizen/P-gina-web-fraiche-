@@ -134,7 +134,7 @@ let cart = store.get('fr_cart', []).map(it => ({ v: -1, ...it }))
 
 /* ---------- carrusel ---------- */
 const SLIDES = [
-  { glow: '#e0435c', glowBtn: '#e0435c', glowInk: '#ff9aa9', t: 'Tu aroma,<br><em>tu tamaño</em>', p: 'Frascos de 16, 30, 60 y 120 ml en esencia de línea, neeche o árabe.', cta: 'Ver perfumes', cat: 'nuevo', img: 'img/botellas/120.webp', ilus: 'frasco', ml: '60' },
+  { glow: '#e0435c', glowBtn: '#e0435c', glowInk: '#ff9aa9', t: 'Tu aroma,<br><em>tu tamaño</em>', p: 'Frascos de 16, 30, 32, 60 y 120 ml en esencia de línea, neeche o árabe.', cta: 'Ver perfumes', cat: 'nuevo', img: 'img/botellas/120.webp', ilus: 'frasco', ml: '60' },
   { glow: '#1f9a62', glowBtn: '#1b8a58', glowInk: '#7fe0b2', t: 'Rellena<br><em>y ahorra</em>', p: () => `Trae tu frasco: 60 ml desde ${money(minPrice(byId['relleno-60']))}.`, cta: 'Ver rellenos', cat: 'relleno', ilus: 'relleno', ml: '60' },
   { glow: '#7a4cd9', glowBtn: '#6a3fc6', glowInk: '#c9b2ff', t: 'Envases<br><em>de colección</em>', p: 'Más de 30 diseños para dama y caballero.', cta: 'Ver envases', cat: 'envases', img: 'img/linea-miss-3.webp', ilus: 'frasco-grande' },
   { glow: '#d9772b', glowBtn: '#c8661c', glowInk: '#ffc58f', t: 'Tu casa<br><em>huele a ti</em>', p: 'Velas, difusores y aromas para el auto.', cta: 'Ver velas', cat: 'velas', img: 'img/velas-aromaticas-2.webp', ilus: 'vela' },
@@ -312,32 +312,23 @@ const aromaTexto = () => aromaSel ? `${aromaSel.n} (${aromaSel.g})` : $('#pAroma
 const pedirAroma = a => a.e === 'ambiental' ? openProduct('difusor-80', { aroma: a }) : abrirTamanos(a);
 
 /* ---------- ventana de tamaños: el aroma elegido en frasco nuevo (16, 30, 60, 120 ml) o relleno ---------- */
-const TAM = ['16', '30', '60', '120'];
+const TAM = ['16', '30', '32', '60', '120'];
 let tA = null, tModo = 'nuevo', tMl = '60', tSel = '', tCant = 1;
 // género de cada frasco: tus botellas por su nombre; los envases del catálogo por su sección (Dúo = para ambos)
 const CABALLERO = ['torsos-futbol', 'lucha-libre', 'linea-aaa-perfumes', 'polo-king-perfume', 'polo-winner-perfume'];
 function generoFrasco(p, v) {
   const n = (v && v.n) || '';
+  if (/^Dama y caballero/i.test(n)) return 'Ambos';
   if (/^Dama/.test(n) || /Woman|Abril|Her Desire|Desire/.test(n)) return 'Dama';
   if (/^Caballero/.test(n) || /Torso Man|Marine|Legend/.test(n)) return 'Caballero';
   if (p.genero === 'Dama' || p.genero === 'Caballero') return p.genero;
   if (p.id === 'nicola-porcella' || CABALLERO.includes(p.id)) return 'Caballero';
   return 'Ambos';
 }
-// estos envases ya son los frascos principales de cada tamaño (no se repiten)
-const YA = ['perseo', 'liliana', 'for-men', 'torso-woman-man'];
-// todos los frascos de un tamaño: primero tus botellas y después los envases del catálogo
+// los frascos de un tamaño: solo los envases que manejas (productos.js)
 function frascosDe(ml) {
-  const out = [];
   const nuevo = byId['nuevo-' + ml];
-  (nuevo && nuevo.var || []).forEach((v, i) => out.push({ id: nuevo.id, v: i, n: v.n, img: v.img, g: generoFrasco(nuevo, v), propio: true }));
-  for (const p of P) {
-    if (p.cat !== 'envases' || YA.includes(p.id)) continue;
-    if (p.var) p.var.forEach((v, i) => { if (String(v.ml || p.envase) === ml && !p.prox)
-      out.push({ id: p.id, v: i, n: `${p.nombre.replace(/ · .*$/, '')} · ${v.n.replace(/\s*\d+ ml$/, '').replace(/ · .*$/, '')}`, img: v.img || p.img, g: generoFrasco(p, v) }); });
-    else if (String(p.envase) === ml && !p.prox) out.push({ id: p.id, v: -1, n: p.nombre, img: p.img, g: generoFrasco(p) });
-  }
-  return out;
+  return (nuevo && nuevo.var || []).map((v, i) => ({ id: nuevo.id, v: i, n: v.n, img: v.img, g: generoFrasco(nuevo, v), propio: true }));
 }
 // los que van con el género del aroma (los "Ambos" siempre aparecen; un aroma unisex ve todos)
 const frascos = (ml, g) => {

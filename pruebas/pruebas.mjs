@@ -148,7 +148,7 @@ await prueba('agregar 2 perfumes de 60 ml en esencia árabe y armar el mensaje d
   await ctx.close();
   assert.equal(boton, 'Agregar · $484');
   assert.equal(cuenta, '2');
-  assert.ok(msg.includes('Perfume 60 ml · Caballero · Perseo turquesa · Esencia árabe · Aroma: Aroma de prueba'), msg);
+  assert.ok(msg.includes('Perfume 60 ml · Caballero · Perseo verde oscuro · Esencia árabe · Aroma: Aroma de prueba'), msg);
   assert.ok(msg.includes('2 × $242 = $484') && msg.includes('*Total: $484*') && msg.includes('Nombre: Ana') && msg.includes('Entrega: Paso a recoger'), msg);
   assert.deepEqual(errors, []);
 });
@@ -181,17 +181,15 @@ await prueba('buscar "212 VIP Black" abre la ventana de tamaños con frascos de 
   const rellenos = await page.locator('#tSizes .tsize').count();
   await ctx.close();
   assert.ok(nombres.includes('212 VIP Black'), nombres.join(', '));
-  assert.deepEqual(tamanos, ['16 ml', '30 ml', '60 ml', '120 ml']);
-  assert.ok(colores.length > 10 && colores[0].startsWith('Caballero'), colores.join(', '));
-  assert.ok(colores.some(c => c.startsWith('Captiver')), 'deben salir envases de caballero del catálogo');
-  assert.ok(!colores.some(c => /^(Dama|Liliana|Línea Miss|Fascinación)/.test(c)), 'no deben salir frascos de dama: ' + colores.join(', '));
+  assert.deepEqual(tamanos, ['16 ml', '30 ml', '32 ml', '60 ml', '120 ml']);
+  assert.deepEqual(colores, ['Caballero · Perseo verde oscuro', 'Caballero · Perseo turquesa', 'Caballero · Perseo azul']);
   assert.ok(boton.startsWith('Agregar · $'), boton);
   assert.deepEqual([it.id, it.v, it.esencia, it.aroma], ['nuevo-120', 0, 'linea', '212 VIP Black (Caballero)']);
   assert.ok(rellenos > 4, `solo ${rellenos} tamaños de relleno`);
   assert.deepEqual(errors, []);
 });
 
-await prueba('perfumes nuevos: solo 16, 30, 60 y 120 ml; elegir un aroma de dama cambia al frasco de dama', async () => {
+await prueba('perfumes nuevos: solo 16, 30, 32, 60 y 120 ml; elegir un aroma de dama cambia al frasco de dama', async () => {
   const { ctx, page } = await abrir();
   await page.click('.cat[data-cat="nuevo"]');
   const nombres = await page.locator('.card h3').allTextContents();
@@ -203,7 +201,7 @@ await prueba('perfumes nuevos: solo 16, 30, 60 y 120 ml; elegir un aroma de dama
   const nombreV = await page.evaluate(i => window.tienda.P.find(p => p.id === 'nuevo-60').var[i].n, +v);
   const ph = await page.getAttribute('#q', 'placeholder');
   await ctx.close();
-  assert.deepEqual(nombres, ['Perfume 120 ml', 'Perfume 60 ml', 'Perfume 30 ml', 'Perfume 16 ml']);
+  assert.deepEqual(nombres, ['Perfume 120 ml', 'Perfume 60 ml', 'Perfume 30 ml', 'Perfume 32 ml', 'Perfume 16 ml']);
   assert.ok(nombreV.startsWith('Dama'), nombreV);
   assert.equal(ph, 'Buscar aroma o producto');
 });

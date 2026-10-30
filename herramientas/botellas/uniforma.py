@@ -16,14 +16,14 @@ def recorta(im):
         m = nd.binary_dilation(np.isin(lab, keep), iterations=3)
         cut.putalpha(Image.fromarray(np.minimum(a, m * 255).astype('uint8')))
     return cut.crop(cut.getbbox())
-def normaliza(im):
+def normaliza(im, blanco=True):
     a = np.asarray(im.convert('RGBA')).astype(float); rgb, al = a[..., :3], a[..., 3]
     m = al > 200
     if m.sum() < 50: return im
     px = rgb[m]; lum = px @ [.299, .587, .114]
     # 1) punto blanco: los brillos más fuertes deben ser blancos neutros (quita tonos rosas, azules, amarillos)
     top = px[lum >= np.percentile(lum, 98.5)].mean(0)
-    gain = np.clip(top.mean() / np.maximum(top, 1), .85, 1.18)
+    gain = np.clip(top.mean() / np.maximum(top, 1), .85, 1.18) if blanco else 1   # frascos esmerilados: sin corregir tono
     rgb = rgb * gain
     # 2) niveles: sombra profunda a 6 y brillo a 250, igual en todas
     lum = (rgb[m] @ [.299, .587, .114])
