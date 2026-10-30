@@ -11,22 +11,22 @@
 const WHATSAPP = '525574348740';
 
 const CATS = [
-  { id: 'todo', nombre: 'Todo', h: 20, ilus: 'set', titulo: 'Todo el catálogo' },
-  { id: 'aromas', nombre: 'Aromas', h: 330, ilus: 'frasco-chico', titulo: 'Aromas de la genealogía', nota: 'Busca tu perfume favorito por nombre, género o nota y pídelo en el tamaño que quieras.' },
-  { id: 'nuevo', nombre: 'Perfumes', h: 345, ilus: 'frasco', titulo: 'Perfumes', nota: 'Frasco nuevo de 16, 30, 60 o 120 ml con el aroma que elijas, en esencia de línea, neeche o árabe.' },
-  { id: 'relleno', nombre: 'Rellenos', h: 150, ilus: 'relleno', titulo: 'Rellenos', nota: 'Rellenamos tu frasco de cualquier tamaño con el aroma que elijas. Cuesta menos que uno nuevo.' },
-  { id: 'envases', nombre: 'Envases', h: 300, ilus: 'frasco-grande', titulo: 'Envases de perfume', nota: 'Elige el diseño y el aroma. El precio depende del tamaño y la esencia.' },
-  { id: 'regalos', nombre: 'Regalos', h: 0, ilus: 'kit', titulo: 'Kits y regalos' },
-  { id: 'bodys', nombre: 'Bodys', h: 95, ilus: 'body', titulo: 'Lociones corporales y bodys' },
-  { id: 'cremas', nombre: 'Piel', h: 265, ilus: 'crema', titulo: 'Cremas y cuidado de la piel' },
-  { id: 'desodorantes', nombre: 'Desodorantes', h: 30, ilus: 'desodorante', titulo: 'Desodorantes' },
-  { id: 'cabello', nombre: 'Cabello', h: 190, ilus: 'spray', titulo: 'Cuidado del cabello' },
-  { id: 'maquillaje', nombre: 'Maquillaje', h: 320, ilus: 'body-glitter', titulo: 'Maquillaje y uñas' },
-  { id: 'colonias', nombre: 'Colonias', h: 205, ilus: 'botella', titulo: 'Aguas de colonia' },
-  { id: 'ninos', nombre: 'Niños', h: 48, ilus: 'ninos', titulo: 'Para niños' },
-  { id: 'velas', nombre: 'Velas', h: 25, ilus: 'vela', titulo: 'Velas aromáticas' },
-  { id: 'casa', nombre: 'Casa y auto', h: 10, ilus: 'difusor', titulo: 'Casa y auto' },
-  { id: 'accesorios', nombre: 'Accesorios', h: 280, ilus: 'kit', titulo: 'Cosmetiqueras, bolsas y más' },
+  { id: 'todo', nombre: 'Todo', h: 172, ilus: 'set', titulo: 'Todo el catálogo' },
+  { id: 'aromas', nombre: 'Aromas', h: 38, ilus: 'frasco-chico', titulo: 'Aromas de la genealogía', nota: 'Busca tu perfume favorito por nombre, género o nota y pídelo en el tamaño que quieras.' },
+  { id: 'nuevo', nombre: 'Perfumes', h: 172, ilus: 'frasco', titulo: 'Perfumes', nota: 'Frasco nuevo de 16, 30, 32, 60 o 120 ml con el aroma que elijas, en esencia de línea, neeche o árabe.' },
+  { id: 'relleno', nombre: 'Rellenos', h: 38, ilus: 'relleno', titulo: 'Rellenos', nota: 'Rellenamos tu frasco de cualquier tamaño con el aroma que elijas. Cuesta menos que uno nuevo.' },
+  { id: 'envases', nombre: 'Envases', h: 172, ilus: 'frasco-grande', titulo: 'Envases de perfume', nota: 'Elige el diseño y el aroma. El precio depende del tamaño y la esencia.' },
+  { id: 'regalos', nombre: 'Regalos', h: 38, ilus: 'kit', titulo: 'Kits y regalos' },
+  { id: 'bodys', nombre: 'Bodys', h: 172, ilus: 'body', titulo: 'Lociones corporales y bodys' },
+  { id: 'cremas', nombre: 'Piel', h: 38, ilus: 'crema', titulo: 'Cremas y cuidado de la piel' },
+  { id: 'desodorantes', nombre: 'Desodorantes', h: 172, ilus: 'desodorante', titulo: 'Desodorantes' },
+  { id: 'cabello', nombre: 'Cabello', h: 38, ilus: 'spray', titulo: 'Cuidado del cabello' },
+  { id: 'maquillaje', nombre: 'Maquillaje', h: 172, ilus: 'body-glitter', titulo: 'Maquillaje y uñas' },
+  { id: 'colonias', nombre: 'Colonias', h: 38, ilus: 'botella', titulo: 'Aguas de colonia' },
+  { id: 'ninos', nombre: 'Niños', h: 172, ilus: 'ninos', titulo: 'Para niños' },
+  { id: 'velas', nombre: 'Velas', h: 38, ilus: 'vela', titulo: 'Velas aromáticas' },
+  { id: 'casa', nombre: 'Casa y auto', h: 172, ilus: 'difusor', titulo: 'Casa y auto' },
+  { id: 'accesorios', nombre: 'Accesorios', h: 38, ilus: 'kit', titulo: 'Cosmetiqueras, bolsas y más' },
 ];
 const TAGS = [
   { id: 'todo', nombre: 'Todo' },
@@ -133,18 +133,44 @@ let cart = store.get('fr_cart', []).map(it => ({ v: -1, ...it }))
   .filter(it => byId[it.id] && (it.v < 0 || (byId[it.id].var && byId[it.id].var[it.v])) && (!preciosDe(byId[it.id], it.v) || preciosDe(byId[it.id], it.v)[it.esencia] != null));
 
 /* ---------- carrusel ---------- */
-const SLIDES = [
-  { glow: '#e0435c', glowBtn: '#e0435c', glowInk: '#ff9aa9', t: 'Tu aroma,<br><em>tu tamaño</em>', p: 'Frascos de 16, 30, 32, 60 y 120 ml en esencia de línea, neeche o árabe.', cta: 'Ver perfumes', cat: 'nuevo', img: 'img/botellas/120.webp', ilus: 'frasco', ml: '60' },
-  { glow: '#1f9a62', glowBtn: '#1b8a58', glowInk: '#7fe0b2', t: 'Rellena<br><em>y ahorra</em>', p: () => `Trae tu frasco: 60 ml desde ${money(minPrice(byId['relleno-60']))}.`, cta: 'Ver rellenos', cat: 'relleno', ilus: 'relleno', ml: '60' },
-  { glow: '#7a4cd9', glowBtn: '#6a3fc6', glowInk: '#c9b2ff', t: 'Envases<br><em>de colección</em>', p: 'Más de 30 diseños para dama y caballero.', cta: 'Ver envases', cat: 'envases', img: 'img/linea-miss-3.webp', ilus: 'frasco-grande' },
-  { glow: '#d9772b', glowBtn: '#c8661c', glowInk: '#ffc58f', t: 'Tu casa<br><em>huele a ti</em>', p: 'Velas, difusores y aromas para el auto.', cta: 'Ver velas', cat: 'velas', img: 'img/velas-aromaticas-2.webp', ilus: 'vela' },
+// Cambia cada vez que se abre la página: novedades, productos del catálogo, aroma del día y promociones.
+const AQUA = { glow: '#1aa59a', glowInk: '#7fe3d6' }, BEIGE = { glow: '#c9b28a', glowInk: '#eadcc0' };
+const PROMOS = [
+  { ...AQUA, t: 'Tu aroma,<br><em>tu tamaño</em>', p: 'Frascos de 16, 30, 32, 60 y 120 ml en esencia de línea, neeche o árabe.', cta: 'Ver perfumes', cat: 'nuevo', img: 'img/botellas/120.webp' },
+  { ...BEIGE, t: 'Rellena<br><em>y ahorra</em>', p: () => `Trae tu frasco: 60 ml desde ${money(minPrice(byId['relleno-60']))}.`, cta: 'Ver rellenos', cat: 'relleno', img: 'img/botellas/60.webp' },
+  { ...AQUA, t: 'Envases<br><em>de colección</em>', p: 'Más de 30 diseños para dama y caballero.', cta: 'Ver envases', cat: 'envases', img: 'img/linea-miss-3.webp' },
+  { ...BEIGE, t: 'Tu casa<br><em>huele a ti</em>', p: 'Velas, difusores y aromas para el auto.', cta: 'Ver velas', cat: 'velas', img: 'img/velas-aromaticas-2.webp' },
+  { ...AQUA, t: 'Regalos<br><em>que enamoran</em>', p: 'Kits, sets y bolsas de regalo listos para entregar.', cta: 'Ver regalos', cat: 'regalos', img: 'img/kit-mama.webp' },
 ];
+const azar = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const corto = (t, n = 90) => t.length > n ? t.slice(0, n).replace(/\s+\S*$/, '') + '…' : t;
+function slideProducto(p, kick, tono) {
+  const m = minPrice(p);
+  const sub = p.desc || p.notas || (p.var ? p.var.slice(0, 3).map(v => v.n).join(' · ') : p.detalle || '');
+  return { ...tono, kick, prod: true, t: esc(p.nombre), p: esc(corto(sub)) + (m && !p.prox ? ` <b>Desde ${money(m)}</b>` : ''),
+    cta: p.prox ? 'Ver novedad' : 'Ver producto', open: p.id, img: p.img };
+}
+let SLIDES = [];
+function armaSlides() {
+  const cat = P.filter(p => p.pag && p.img);
+  const novedades = cat.filter(p => p.prox || p.pag <= 40);          // las primeras páginas del catálogo son las novedades
+  const nov = azar(novedades).slice(0, 3).map(p => slideProducto(p, p.prox ? 'Próximamente' : 'Novedad', AQUA));
+  const otros = azar(cat.filter(p => !novedades.includes(p) && minPrice(p))).slice(0, 3).map(p => slideProducto(p, 'Te va a gustar', BEIGE));
+  const fav = AROMAS.filter(a => a.g === 'Dama' || a.g === 'Caballero');
+  const a = fav[Math.floor(Math.random() * fav.length)];
+  const aroma = a && { ...AQUA, kick: 'Aroma del día', prod: true, t: esc(a.n), p: `${a.g} · Nota principal: ${esc(a.nota)}.${a.desc ? ` Huele ${esc(a.desc)}.` : ''}`, cta: 'Pedir este aroma', pedir: a.i,
+    img: `img/botellas/${a.g === 'Dama' ? '30-dama-liliana-melon' : '60-caballero-perseo-turquesa'}.webp` };
+  const promos = azar(PROMOS).slice(0, 3);
+  // empieza con una novedad y después se mezclan
+  SLIDES = [nov[0], ...azar([...nov.slice(1), ...otros, aroma, ...promos])].filter(Boolean);
+}
 function renderHero() {
+  armaSlides();
   $('#slides').innerHTML = SLIDES.map((s, i) => `
-    <article class="slide" id="slide${i}" style="--glow:${s.glow};--glow-btn:${s.glowBtn};--glow-ink:${s.glowInk}" aria-roledescription="destacado" aria-label="${i + 1} de ${SLIDES.length}">
-      <div class="slide-txt"><h2>${s.t}</h2><p>${typeof s.p === 'function' ? s.p() : s.p}</p>
-        <button class="cta" data-cat="${s.cat}">${s.cta} <span aria-hidden="true">→</span></button></div>
-      <div class="slide-art${s.img ? ' foto' : ''}">${s.img ? `<img src="${s.img}" alt="" decoding="async">` : ART[s.ilus](s.ml || '')}</div>
+    <article class="slide${s.prod ? ' prod' : ''}" id="slide${i}" style="--glow:${s.glow};--glow-ink:${s.glowInk}" aria-roledescription="destacado" aria-label="${i + 1} de ${SLIDES.length}">
+      <div class="slide-txt">${s.kick ? `<span class="kick">${s.kick}</span>` : ''}<h2>${s.t}</h2><p>${typeof s.p === 'function' ? s.p() : s.p}</p>
+        <button class="cta" ${s.open ? `data-open="${s.open}"` : s.pedir != null ? `data-pedir="${s.pedir}"` : `data-cat="${s.cat}"`}>${s.cta} <span aria-hidden="true">→</span></button></div>
+      <div class="slide-art foto"><img src="${s.img}" alt="" decoding="async"${i ? ' loading="lazy"' : ''}></div>
     </article>`).join('');
   $('#dots').innerHTML = SLIDES.map((_, i) => `<button role="tab" aria-label="Destacado ${i + 1}" aria-selected="${i === 0}" data-i="${i}"></button>`).join('');
 }
